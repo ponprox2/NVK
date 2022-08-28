@@ -134,7 +134,7 @@ export default function Exportation() {
   const getDeliveryResult = async (body) => {
     try {
       const res = await getDeliveryResultAPI(body);
-      if (res?.status === 200 && res?.data?.length > 0) {
+      if (res?.status === 200) {
         setListProduct(res?.data);
       }
     } catch (error) {

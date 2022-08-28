@@ -222,7 +222,7 @@ export default function Exportation() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Xác Nhận Đơn Hàng Từ Cửa Hàng
+            Xác Nhận Kết Quả Giao Hàng
           </Typography>
           <Button variant="contained" onClick={updateExportation}>
             Lưu

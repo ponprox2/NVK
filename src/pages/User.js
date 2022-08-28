@@ -249,7 +249,7 @@ export default function User() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Xác Nhận Đơn Hàng Từ Cửa Hàng
+            Giao Đơn Hàng Cho Nhân Viên Vận Chuyển
           </Typography>
           <Button
             variant="contained"

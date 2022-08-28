@@ -222,7 +222,7 @@ export default function User() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Xác Nhận Đơn Hàng Từ Cửa Hàng
+          Nhập Hàng Vào Kho
           </Typography>
           <Button variant="contained" onClick={updateImportation}>
             Lưu

@@ -25,3 +25,15 @@ export const API_GET_DETAIL_PACKAGE = `${BASE_URL}/api/detailPackage`;
 export const API_GET_SHOP_ORDER_HISTORY = `${BASE_URL}/api/shopOrderHistory`;
 
 export const API_LOGIN = `${BASE_URL}/api/login`;
+
+export const API_GET_IMPORTATION = `${BASE_URL}/api/importations`;
+
+export const API_UPDATE_IMPORTATION = `${BASE_URL}/api/importations`;
+
+export const API_GET_EXPORTATION = `${BASE_URL}/api/exportations`;
+
+export const API_UPDATE_EXPORTATION = `${BASE_URL}/api/exportations`;
+
+export const API_GET_DELIVERY_RESULTS = `${BASE_URL}/api/deliveryResults`;
+
+export const API_UPDATE_DELIVERY_RESULTS = `${BASE_URL}/api/deliveryResults`;

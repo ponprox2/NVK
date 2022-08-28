@@ -12,25 +12,30 @@ const navConfig = [
     icon: getIcon('eva:pie-chart-2-fill'),
   },
   {
-    title: 'Xác Nhận Đơn Hàng Từ Cửa Hàng',
+    title: 'Giao Đơn Hàng Cho Nhân Viên Vận Chuyển',
     path: '/dashboard/user',
     icon: getIcon('eva:people-fill'),
   },
   {
-    title: 'product',
+    title: 'Xác Nhận Đơn Hàng Từ Cửa Hàng',
     path: '/dashboard/products',
     icon: getIcon('eva:shopping-bag-fill'),
   },
   {
-    title: 'Order',
+    title: 'Nhập Hàng Vào Kho',
     path: '/dashboard/order',
     icon: getIcon('eva:alert-triangle-fill'),
   },
-  // {
-  //   title: 'blog',
-  //   path: '/dashboard/blog',
-  //   icon: getIcon('eva:file-text-fill'),
-  // },
+  {
+    title: 'Xuất Hàng Ra Khỏi Kho',
+    path: '/dashboard/Exportation',
+    icon: getIcon('eva:file-text-fill'),
+  },
+  {
+    title: 'Xác Nhận Kết Quả Giao Hàng',
+    path: '/dashboard/confirmOrder',
+    icon: getIcon('eva:file-text-fill'),
+  },
   {
     title: 'login',
     path: '/login',

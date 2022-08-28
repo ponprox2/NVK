@@ -31,20 +31,21 @@ import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
-// mock
+import SimpleDialog from './DetailOrderView';
 import DateRangePicker from './chooseTimeRangePicker';
-
+import { getWorkingTerritory, getRegion, updateDeliveryHistory, getShopOrdersConfirming } from '../services/index';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'stt', label: 'STT', alignRight: false },
-  { id: 'shippingID', label: 'shippingID', alignRight: false },
-  { id: 'packageName', label: 'packageName', alignRight: false },
-  { id: 'quantity', label: 'quantity', alignRight: false },
-  { id: 'mass', label: 'mass (Kg)', alignRight: false },
-  { id: 'unitPrice', label: 'unitPrice (VND)', alignRight: false },
-  { id: 'deliveryAddress', label: 'deliveryAddress', alignRight: false },
+  { id: 'shopOrderID', label: 'shopOrderID', alignRight: false },
+  { id: 'shopName', label: 'shopName', alignRight: false },
+  { id: 'shopkeeperName', label: 'shopkeeperName', alignRight: false },
+  { id: 'shopAddress', label: 'shopAddress', alignRight: false },
+  { id: 'shopPhone', label: 'shopPhone', alignRight: false },
+  { id: 'registerDate', label: 'registerDate', alignRight: false },
+  { id: 'status', label: 'status', alignRight: false },
 ];
+// const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate } = row;
 
 // ----------------------------------------------------------------------
 
@@ -93,29 +94,71 @@ export default function User() {
   const [openRangePicker, setOpenRangePicker] = useState(false);
   const [timeChoose, setTimeChoose] = useState('');
   const [endTimeChoose, setEndTimeChoose] = useState('');
+  const [statusChoose, setStatusChoose] = useState(0);
+  const [statusAllChoose, setStatusAllChoose] = useState(0);
+  const [Addresses, setAddresses] = useState('');
+  const [regions, setRegions] = useState([]);
+  const staffID = localStorage.getItem('staffID');
+  const [listProduct, setListProduct] = useState([]);
+  const [regionsChoose, setRegionsChoose] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [itemProp, setItemProp] = useState({});
 
-  const [listProduct, setListProduct] = useState([
-    { id: 1, name: 'pon', price: 11111, discount: 15, status: true, address: '97 man thien' },
-  ]);
-
-  // useEffect(() => {
-  //   async function loadListProduct() {
-  //     const res = await axios.get('http://localhost:3000/api/v1/products');
-  //     setListProduct(res.data);
-  //   }
-  //   loadListProduct();
-  // }, []);
-  const handleChangeStatus = (id) => {
-    const temp = listProduct.filter((e) => e.id === id);
-    const tempArr = listProduct.filter((e) => e.id !== id);
-    let temp1 = [];
-    if (temp[0].status === true) {
-      temp[0].status = false;
-      temp1 = temp;
-    } else {
-      temp[0].status = true;
-      temp1 = temp;
+  async function getWorkingTerritoryAPI(id) {
+    const res = await getWorkingTerritory(id);
+    if (res?.status === 200) {
+      getRegionAPI(res?.data);
+      setAddresses(res?.data);
     }
+  }
+  async function getRegionAPI(id) {
+    const res = await getRegion(id?.territoryID);
+    if (res?.status === 200) {
+      setRegions(res?.data);
+    }
+  }
+  const updateDeliveryHistoryAPI = async () => {
+    const body = listProduct.map((e) => ({
+      shopOrderID: e?.shopOrderID,
+      status: e?.status,
+      warehouseStaffID: e?.warehouseStaffID,
+    }));
+
+    const res = await updateDeliveryHistory(body);
+    if (res?.status === 200) {
+      console.log(res?.data);
+    }
+  };
+
+  const getShopOrdersConfirmingAPI = async (body) => {
+    try {
+      const res = await getShopOrdersConfirming(body);
+      setListProduct(res?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getWorkingTerritoryAPI(staffID);
+  }, []);
+  useEffect(() => {
+    const body = {
+      staffID1: staffID,
+      regionID: regionsChoose,
+      status: statusAllChoose,
+    };
+    getShopOrdersConfirmingAPI(body);
+  }, [staffID, regionsChoose, statusAllChoose]);
+
+  const handleChangeStatus = (event, id) => {
+    const temp = listProduct.filter((e) => e.shopOrderID === id);
+    const tempArr = listProduct.filter((e) => e.shopOrderID !== id);
+    let temp1 = [];
+
+    temp[0].status = event;
+    temp1 = temp;
+    console.log(temp1[0]?.status);
     const temp2 = [...temp1, ...tempArr];
     temp2.sort((a, b) => a.id - b.id);
     setListProduct(temp2);
@@ -164,6 +207,10 @@ export default function User() {
     setFilterName(event.target.value);
   };
 
+  // const handleChangeStatus = (event) => {
+  //   // const temp1 =
+  // }
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listProduct.length) : 0;
 
   const filteredUsers = applySortFilter(listProduct, getComparator(order, orderBy), filterName);
@@ -175,21 +222,16 @@ export default function User() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Product
+            Xác Nhận Đơn Hàng Từ Cửa Hàng
           </Typography>
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to="/dashboard/addProduct"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-          >
-            New product
+          <Button variant="contained" onClick={updateDeliveryHistoryAPI}>
+            Lưu
           </Button>
         </Stack>
         <Box style={{ marginBottom: '30px' }}>
           <Box style={{ display: 'flex' }}>
             <Box>Nhà kho: </Box>
-            <Box style={{ marginLeft: '150px' }}>97 man thien </Box>
+            <Box style={{ marginLeft: '150px' }}>{Addresses?.description}</Box>
           </Box>
           <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
             <Box>Địa chỉ kho: </Box>
@@ -198,34 +240,36 @@ export default function User() {
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 style={{ height: '30px' }}
-                // value={regionsChoose}
-                // onChange={(e) => handleChangeRegion(e)}
+                value={regionsChoose}
+                onChange={(e) => setRegionsChoose(e?.target?.value)}
               >
-                {/* {regions?.map((e) => (
-                  <MenuItem value={e?.regionID}>{e?.adminDivision2}</MenuItem>
-                ))} */}
-                {/* <MenuItem value={0}>Chưa giao</MenuItem>
-                <MenuItem value={1}>Giao thành công</MenuItem>
-                <MenuItem value={2}>Giao thất bại</MenuItem> */}
+                {regions?.map((e) => (
+                  <MenuItem value={e?.regionID}>{e?.description}</MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Box>
 
-          <Box onClick={() => setOpenRangePicker(true)}>
-            Thời gian thống kê: {timeChoose} - {endTimeChoose}{' '}
+          <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
+            <Box>Trạng thái đơn hàng: </Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '110px' }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                style={{ height: '30px' }}
+                value={statusAllChoose}
+                onChange={(e) => setStatusAllChoose(e?.target?.value)}
+              >
+                <MenuItem value={0}>Tất cả</MenuItem>
+                <MenuItem value={1}>Chưa xác nhận</MenuItem>
+                <MenuItem value={2}>Đã xác nhận</MenuItem>
+                <MenuItem value={3}>Chờ thu gom</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
-
-          <DateRangePicker
-            openTime={openRangePicker}
-            setOpenTime={setOpenRangePicker}
-            timeChoose={timeChoose}
-            setTimeChoose={setTimeChoose}
-            endTimeChoose={endTimeChoose}
-            setEndTimeChoose={setEndTimeChoose}
-          />
         </Box>
         <Card>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -242,44 +286,47 @@ export default function User() {
 
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const id = row.id;
-                    const name = row.name;
-                    const price = row.price;
-                    const discount = row.discount;
-                    const status = row.status;
-                    const address = row.address;
+                    const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate, status } = row;
 
-                    const isItemSelected = selected.indexOf(name) !== -1;
+                    const isItemSelected = selected.indexOf(shopName) !== -1;
 
                     return (
                       <TableRow
                         hover
-                        key={id}
+                        key={shopOrderID}
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
+                        onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
                       >
                         <TableCell padding="checkbox">
-                          <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
+                          {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
                         </TableCell>
 
-                        <TableCell align="left" onClick={() => navigate(`/dashboard/updateProduct?id=${id}`)}>
-                          {name}
-                        </TableCell>
-                        <TableCell align="left">{id}</TableCell>
-                        <TableCell align="left">{name}</TableCell>
-                        <TableCell align="left">{price}</TableCell>
-                        <TableCell align="left">{discount}</TableCell>
-                        <TableCell align="left" onClick={() => handleChangeStatus(id)}>
-                          {status ? 'xuat' : 'nhap'}
-                        </TableCell>
-                        <TableCell align="left">{address}</TableCell>
-                        {/* <Button>123</Button> */}
+                        <TableCell align="left">{shopOrderID}</TableCell>
+                        <TableCell align="left">{shopName}</TableCell>
+                        <TableCell align="left">{shopkeeperName}</TableCell>
+                        <TableCell align="left">{shopAddress}</TableCell>
+                        <TableCell align="left">{shopPhone}</TableCell>
 
-                        {/* <TableCell align="right">
-                          <UserMoreMenu id={id} />
-                        </TableCell> */}
+                        <TableCell align="left">{registerDate}</TableCell>
+                        <FormControl style={{ marginTop: '10px' }}>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            style={{ height: '30px' }}
+                            value={status}
+                            onChange={(e) => handleChangeStatus(e?.target?.value, shopOrderID)}
+                          >
+                            <MenuItem value={1}>Chưa xác nhận</MenuItem>
+                            <MenuItem value={2}>Đã xác nhận</MenuItem>
+                            <MenuItem value={3}>Chờ thu gom</MenuItem>
+                          </Select>
+                        </FormControl>
                       </TableRow>
                     );
                   })}
@@ -314,6 +361,7 @@ export default function User() {
           />
         </Card>
       </Container>
+      <SimpleDialog open={open} itemProp={itemProp} onClose={() => setOpen(false)} />
     </Page>
   );
 }

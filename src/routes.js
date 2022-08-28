@@ -13,6 +13,8 @@ import DashboardApp from './pages/DashboardApp';
 import AddProduct from './pages/addProduct';
 import DetailOrder from './pages/detailOrder';
 import UpdProduct from './pages/updateProduct';
+import Exportation from './pages/Exportation';
+import ConfirmOrder from './pages/ConfirmOrder';
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +34,8 @@ export default function Router() {
         { path: 'updateProduct/', element: <UpdProduct /> },
         { path: 'orderDetail/', element: <DetailOrder /> },
         { path: 'orderHistory/', element: <DetailOrder /> },
+        { path: 'Exportation/', element: <Exportation /> },
+        { path: 'confirmOrder/', element: <ConfirmOrder /> },
       ],
     },
     {

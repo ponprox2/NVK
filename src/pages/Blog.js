@@ -1,7 +1,7 @@
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 // material
 import {
@@ -31,27 +31,23 @@ import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
-// mock
-import USERLIST from '../_mock/user';
-
+import SimpleDialog from './DetailOrderView';
+import DateRangePicker from './chooseTimeRangePicker';
+import { getWorkingTerritory, getRegion, getImportationAPI, updateImportationAPI } from '../services/index';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'shippingID', label: 'shippingID', alignRight: false },
-  { id: 'packageName', label: 'packageName', alignRight: false },
-  { id: 'deliveryAddress', label: 'deliveryAddress', alignRight: false },
-  { id: 'consigneeName', label: 'consigneeName', alignRight: false },
-  { id: 'deliveryStatus', label: 'deliveryStatus', alignRight: false },
-  { id: 'paymentStatus', label: 'paymentStatus', alignRight: false },
+  { id: 'shopOrderID', label: 'shopOrderID', alignRight: false },
+  { id: 'shopName', label: 'shopName', alignRight: false },
+  { id: 'shopkeeperName', label: 'shopkeeperName', alignRight: false },
+  { id: 'shopAddress', label: 'shopAddress', alignRight: false },
+  { id: 'shopPhone', label: 'shopPhone', alignRight: false },
+  { id: 'registerDate', label: 'registerDate', alignRight: false },
+  { id: 'deliveryAddress ', label: 'deliveryAddress ', alignRight: false },
+  { id: 'status', label: 'status', alignRight: false },
 ];
-// id: 1,
-// shippingID: 123,
-// packageName: 'giay the thao',
-// deliveryAddress: 1,
-// consigneeName: 20,
-// deliveryStatus: 100000,
-// deliveryAddress: '99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-// paymentStatus: true,
+// const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate } = row;
+
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
@@ -84,6 +80,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function User() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -95,67 +92,77 @@ export default function User() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [openRangePicker, setOpenRangePicker] = useState(false);
+  const [timeChoose, setTimeChoose] = useState('');
+  const [endTimeChoose, setEndTimeChoose] = useState('');
+  const [statusChoose, setStatusChoose] = useState(0);
+  const [statusAllChoose, setStatusAllChoose] = useState(0);
+  const [Addresses, setAddresses] = useState('');
+  const [regions, setRegions] = useState([]);
+  const staffID = localStorage.getItem('staffID');
+  const [listProduct, setListProduct] = useState([]);
+  const [regionsChoose, setRegionsChoose] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [itemProp, setItemProp] = useState({});
+  const [shopName, setShopName] = useState('');
 
-  const [listUser, setListUser] = useState([
-    {
-      id: 1,
-      shippingID: 123,
-      packageName: 'giay the thao',
-      consigneeName: 20,
-      deliveryStatus: 0,
-      deliveryAddress: '99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-      paymentStatus: 0,
-    },
-    {
-      id: 2,
-      shippingID: 2,
-      packageName: 'giay the thao',
-      consigneeName: 20,
-      deliveryStatus: 0,
-      deliveryAddress: '99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-      paymentStatus: 0,
-    },
-    {
-      id: 3,
-      shippingID: 3,
-      packageName: 'giay the thao',
-      consigneeName: 20,
-      deliveryStatus: 0,
-      deliveryAddress: '99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-      paymentStatus: 0,
-    },
-  ]);
-  // const [age, setAge] = useState('');
-
-  const handleChange = (event, id) => {
-    const temp = listUser.filter((e) => e.id === id);
-    const tempArr = listUser.filter((e) => e.id !== id);
-    let temp1 = [];
-    temp[0].paymentStatus = event.target.value;
-    temp1 = temp;
-    const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.id - b.id);
-    setListUser(temp2);
+  async function getWorkingTerritoryAPI(id) {
+    const res = await getWorkingTerritory(id);
+    if (res?.status === 200) {
+      getRegionAPI(res?.data);
+      setAddresses(res?.data);
+    }
+  }
+  async function getRegionAPI(id) {
+    const res = await getRegion(id?.territoryID);
+    if (res?.status === 200) {
+      setRegions(res?.data);
+    }
+  }
+  const updateImportation = async () => {
+    const body = listProduct.map((e) => ({
+      shopOrderID: e?.shopOrderID,
+      migrationStatus: e?.migrationStatus,
+      warehouseStaffID: e?.warehouseStaffID,
+    }));
+    const res = await updateImportationAPI(body);
+    if (res?.status === 200) {
+      console.log(res?.data);
+    }
   };
 
-  const handleChangeDeliveryStatus = (event, id) => {
-    const temp = listUser.filter((e) => e.id === id);
-    const tempArr = listUser.filter((e) => e.id !== id);
-    let temp1 = [];
-    temp[0].deliveryStatus = event.target.value;
-    temp1 = temp;
-    const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.id - b.id);
-    setListUser(temp2);
+  const getImportation = async (body) => {
+    try {
+      const res = await getImportationAPI(body);
+      setListProduct(res?.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
-    async function loadListUser() {
-      const res = await axios.get('http://localhost:3000/api/v1/users');
-      setListUser(res.data);
-    }
-    loadListUser();
+    getWorkingTerritoryAPI(staffID);
   }, []);
+  useEffect(() => {
+    const body = {
+      staffID,
+      regionID: regionsChoose,
+      shopName,
+    };
+    getImportation(body);
+  }, [staffID, regionsChoose, shopName]);
+
+  const handleChangeStatus = (event, id) => {
+    const temp = listProduct.filter((e) => e.shopOrderID === id);
+    const tempArr = listProduct.filter((e) => e.shopOrderID !== id);
+    let temp1 = [];
+
+    temp[0].migrationStatus = event;
+    temp1 = temp;
+    const temp2 = [...temp1, ...tempArr];
+    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
+    setListProduct(temp2);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -165,7 +172,7 @@ export default function User() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = listUser.map((n) => n.name);
+      const newSelecteds = listProduct.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -200,42 +207,66 @@ export default function User() {
     setFilterName(event.target.value);
   };
 
-  const handleChangeStatus = (id) => {
-    const temp = listUser.filter((e) => e.id === id);
-    const tempArr = listUser.filter((e) => e.id !== id);
-    let temp1 = [];
-    if (temp[0].paymentStatus === true) {
-      temp[0].paymentStatus = false;
-      temp1 = temp;
-    } else {
-      temp[0].paymentStatus = true;
-      temp1 = temp;
-    }
-    const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.id - b.id);
-    setListUser(temp2);
-  };
+  // const handleChangeStatus = (event) => {
+  //   // const temp1 =
+  // }
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listUser.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listProduct.length) : 0;
 
-  const filteredUsers = applySortFilter(listUser, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(listProduct, getComparator(order, orderBy), filterName);
 
   const isUserNotFound = filteredUsers.length === 0;
 
   return (
-    <Page title="User">
+    <Page title="Product">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Xác Nhận Trạng Thái Giao Hàng
+            Xác Nhận Đơn Hàng Từ Cửa Hàng
           </Typography>
-          <Button variant="contained" component={RouterLink} to="#" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button variant="contained" onClick={updateImportation}>
             Lưu
           </Button>
         </Stack>
+        <Box style={{ marginBottom: '30px' }}>
+          <Box style={{ display: 'flex' }}>
+            <Box>Địa Bàn: </Box>
+            <Box style={{ marginLeft: '150px' }}>{Addresses?.description}</Box>
+          </Box>
+          <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
+            <Box>Phường/Xã: </Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '110px' }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                style={{ height: '30px' }}
+                value={regionsChoose}
+                onChange={(e) => setRegionsChoose(e?.target?.value)}
+              >
+                {regions?.map((e) => (
+                  <MenuItem value={e?.regionID}>{e?.description}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
 
+          <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
+            <Box>Tên Cửa Hàng: </Box>
+            <input
+              style={{
+                width: '120px',
+                height: '25px',
+                marginLeft: '70px',
+                borderRadius: '25px',
+                padding: '5px',
+              }}
+              value={shopName}
+              onChange={(e) => setShopName(e.target.value)}
+            />
+          </Box>
+        </Box>
         <Card>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -244,99 +275,64 @@ export default function User() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={listUser.length}
+                  rowCount={listProduct.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
+
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const {
-                      id,
-                      shippingID,
-                      packageName,
+                      shopOrderID,
+                      shopName,
+                      shopkeeperName,
+                      shopAddress,
+                      shopPhone,
+                      registerDate,
+                      migrationStatus,
                       deliveryAddress,
-                      consigneeName,
-                      deliveryStatus,
-                      paymentStatus,
                     } = row;
-                    // id:1,
-                    // shippingID:123,
-                    // packageName:'giay the thao',
-                    // deliveryAddress:1,
-                    // consigneeName:20,
-                    // deliveryStatus:100000,
-                    // deliveryAddress:'99 Man Thiện, Phường Hiệp Phú, Thành Phố Thủ Đức',
-                    // paymentStatus:true,
-                    // Đang để mặc đinh là active vì chưa có thuộc tính 'paymentStatus'
-                    // const paymentStatus = 'active';
 
-                    const isItemSelected = selected.indexOf(shippingID) !== -1;
+                    const isItemSelected = selected.indexOf(shopName) !== -1;
 
                     return (
                       <TableRow
                         hover
-                        key={id}
+                        key={shopOrderID}
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
+                        onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
                       >
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
                         </TableCell>
-                        {/* <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </Stack>
-                        </TableCell> */}
-                        {/* const { id, shippingID, packageName, deliveryAddress, consigneeName, deliveryStatus, deliveryAddress, paymentStatus } = row; */}
-                        <TableCell align="left">{shippingID}</TableCell>
-                        <TableCell align="left">{packageName}</TableCell>
+
+                        <TableCell align="left">{shopOrderID}</TableCell>
+                        <TableCell align="left">{shopName}</TableCell>
+                        <TableCell align="left">{shopkeeperName}</TableCell>
+                        <TableCell align="left">{shopAddress}</TableCell>
+                        <TableCell align="left">{shopPhone}</TableCell>
+
+                        <TableCell align="left">{registerDate}</TableCell>
                         <TableCell align="left">{deliveryAddress}</TableCell>
-                        <TableCell align="left">{consigneeName}</TableCell>
-
-                        {/* <TableCell align="left">{deliveryStatus}</TableCell> */}
-                        {/* <TableCell align="left" onClick={() => handleChangeStatus(id)}>
-                          {paymentStatus ? 'nhan' : 'huy'}
-                        </TableCell> */}
-                        <TableCell>
-                          <FormControl style={{ marginTop: '10px' }}>
-                            <Select
-                              labelId="demo-simple-select-label"
-                              id="demo-simple-select"
-                              value={deliveryStatus}
-                              onChange={(e) => handleChangeDeliveryStatus(e, id)}
-                            >
-                              <MenuItem value={0}>Chưa giao</MenuItem>
-                              <MenuItem value={1}>Giao thành công</MenuItem>
-                              <MenuItem value={2}>Giao thất bại</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-                        <TableCell>
-                          <FormControl style={{ marginTop: '10px' }}>
-                            <Select
-                              labelId="demo-simple-select-label"
-                              id="demo-simple-select"
-                              value={paymentStatus}
-                              onChange={(e) => handleChange(e, id)}
-                            >
-                              <MenuItem value={0}>Chưa thanh toán</MenuItem>
-                              <MenuItem value={1}>Đã thanh toán phí ship</MenuItem>
-                              <MenuItem value={2}>Đã thanh toán toàn bộ</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-
-                        {/**/}
-
-                        <TableCell align="right">
-                          <UserMoreMenu />
-                        </TableCell>
+                        <FormControl style={{ marginTop: '10px' }}>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            style={{ height: '30px' }}
+                            value={migrationStatus}
+                            onChange={(e) => handleChangeStatus(e?.target?.value, shopOrderID)}
+                          >
+                            <MenuItem value={0}> Chưa nhập</MenuItem>
+                            <MenuItem value={1}> Đã nhập</MenuItem>
+                          </Select>
+                        </FormControl>
                       </TableRow>
                     );
                   })}
@@ -363,7 +359,7 @@ export default function User() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={listUser.length}
+            count={listProduct.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -371,6 +367,7 @@ export default function User() {
           />
         </Card>
       </Container>
+      <SimpleDialog open={open} itemProp={itemProp} onClose={() => setOpen(false)} />
     </Page>
   );
 }

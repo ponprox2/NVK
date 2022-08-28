@@ -31,18 +31,9 @@ import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
-// mock
-import USERLIST from '../_mock/user';
-import {
-  getWorkingTerritory,
-  getRegion,
-  getDetailPackage,
-  updateDeliveryHistory,
-  getShopOrderAssignmentAPI,
-  getShopOrderDismissionAPI,
-  getShopOrderAssignmentCapabilityAPI,
-} from '../services/index';
-
+import SimpleDialog from './DetailOrderView';
+import DateRangePicker from './chooseTimeRangePicker';
+import { getWorkingTerritory, getRegion, getDeliveryResultAPI, updateDeliveryResultAPI } from '../services/index';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -52,11 +43,12 @@ const TABLE_HEAD = [
   { id: 'shopAddress', label: 'shopAddress', alignRight: false },
   { id: 'shopPhone', label: 'shopPhone', alignRight: false },
   { id: 'registerDate', label: 'registerDate', alignRight: false },
-  { id: 'packageName', label: 'packageName', alignRight: false },
-  { id: 'deliveryAddress', label: 'deliveryAddress', alignRight: false },
-  { id: 'GIAODON', label: 'Giao đơn', alignRight: false },
-  { id: 'deliveryAddress', label: 'Huỷ giao đơn', alignRight: false },
+  { id: 'deliveryAddress ', label: 'deliveryAddress ', alignRight: false },
+  { id: 'status', label: 'status', alignRight: false },
 ];
+// const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate } = row;
+
+// ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -75,7 +67,7 @@ function getComparator(order, orderBy) {
 }
 
 function applySortFilter(array, comparator, query) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
+  const stabilizedThis = array?.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
@@ -87,7 +79,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function User() {
+export default function Exportation() {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
 
@@ -100,17 +92,19 @@ export default function User() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [territory, setTerritory] = useState({});
-  const [regions, setRegions] = useState([]);
-  const [regionsChoose, setRegionsChoose] = useState(0);
+  const [openRangePicker, setOpenRangePicker] = useState(false);
+  const [timeChoose, setTimeChoose] = useState('');
+  const [endTimeChoose, setEndTimeChoose] = useState('');
+  const [statusChoose, setStatusChoose] = useState(0);
   const [statusAllChoose, setStatusAllChoose] = useState(0);
   const [Addresses, setAddresses] = useState('');
-  const staffID1 = localStorage.getItem('staffID');
-  const [listOrder, setListOrder] = useState([]);
-
-  const [listUser, setListUser] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const staffID = localStorage.getItem('staffID');
+  const [listProduct, setListProduct] = useState([]);
+  const [regionsChoose, setRegionsChoose] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [itemProp, setItemProp] = useState({});
   const [shopName, setShopName] = useState('');
-  const [packageName, setPackageName] = useState('');
 
   async function getWorkingTerritoryAPI(id) {
     const res = await getWorkingTerritory(id);
@@ -125,36 +119,52 @@ export default function User() {
       setRegions(res?.data);
     }
   }
-  async function updateDeliveryHistoryAPI() {
-    const body = listUser.map((e) => ({ shopOrderID: e?.shopOrderID, status: e?.status }));
-
-    const res = await updateDeliveryHistory(body);
+  const updateDeliveryResult = async () => {
+    const body = listProduct.map((e) => ({
+      shopOrderID: e?.shopOrderID,
+      confirmation: e?.confirmation,
+      warehouseStaffID: e?.warehouseStaffID,
+    }));
+    const res = await updateDeliveryResultAPI(body);
     if (res?.status === 200) {
       console.log(res?.data);
     }
-  }
-
-  const handleUpdate = () => {
-    updateDeliveryHistoryAPI();
   };
-  async function getShopOrderAssignment() {
-    const body = {
-      staffID: staffID1,
-      packageName1: packageName,
-      shopName1: shopName,
-      regionID: regionsChoose,
-    };
-    const res = await getShopOrderAssignmentAPI(body);
-    if (res?.status === 200) {
-      setListUser(res?.data);
+
+  const getDeliveryResult = async (body) => {
+    try {
+      const res = await getDeliveryResultAPI(body);
+      if (res?.status === 200 && res?.data?.length > 0) {
+        setListProduct(res?.data);
+      }
+    } catch (error) {
+      console.log(error);
     }
-  }
+  };
+
   useEffect(() => {
-    getShopOrderAssignment();
-  }, [shopName, regionsChoose, packageName]);
-  useEffect(() => {
-    getWorkingTerritoryAPI(staffID1);
+    getWorkingTerritoryAPI(staffID);
   }, []);
+  useEffect(() => {
+    const body = {
+      staffID,
+      regionID: regionsChoose,
+      shopName,
+    };
+    getDeliveryResult(body);
+  }, [staffID, regionsChoose, shopName]);
+
+  const handleChangeStatus = (event, id) => {
+    const temp = listProduct.filter((e) => e.shopOrderID === id);
+    const tempArr = listProduct.filter((e) => e.shopOrderID !== id);
+    let temp1 = [];
+
+    temp[0].migrationStatus = event;
+    temp1 = temp;
+    const temp2 = [...temp1, ...tempArr];
+    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
+    setListProduct(temp2);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -164,31 +174,11 @@ export default function User() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = listUser.map((n) => n.name);
+      const newSelecteds = listProduct.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
-  };
-
-  const handleDismiss = async (id) => {
-    const body = {
-      shopOrderID: id,
-    };
-    try {
-      getShopOrderDismissionAPI(body);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const handleCapability = async (id) => {
-    try {
-      const res = getShopOrderAssignmentCapabilityAPI(id);
-
-      navigate(`/dashboard/orderHistory?id=${id}`);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const handleClick = (event, name) => {
@@ -219,52 +209,31 @@ export default function User() {
     setFilterName(event.target.value);
   };
 
-  const handleChangeStatus = (event, id) => {
-    const temp = listUser.filter((e) => e.shopOrderID === id);
-    const tempArr = listUser.filter((e) => e.shopOrderID !== id);
-    let temp1 = [];
+  // const handleChangeStatus = (event) => {
+  //   // const temp1 =
+  // }
 
-    temp[0].status = event?.target?.value;
-    temp1 = temp;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listProduct.length) : 0;
 
-    const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.id - b.id);
-    setListUser(temp2);
-  };
-  const handleChangeDeliveryStatus = (e) => {
-    setStatusAllChoose(e.target.value);
-  };
-  const handleChangeRegion = (e) => {
-    setRegionsChoose(e.target.value);
-  };
-
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listUser.length) : 0;
-
-  const filteredUsers = applySortFilter(listUser, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(listProduct, getComparator(order, orderBy), filterName);
 
   const isUserNotFound = filteredUsers.length === 0;
 
   return (
-    <Page title="User">
+    <Page title="Product">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
             Xác Nhận Đơn Hàng Từ Cửa Hàng
           </Typography>
-          <Button
-            variant="contained"
-            // component={RouterLink}
-            // to="#"
-            onClick={handleUpdate}
-            startIcon={<Iconify icon="eva:plus-fill" />}
-          >
+          <Button variant="contained" onClick={updateDeliveryResult}>
             Lưu
           </Button>
         </Stack>
-        <Box>
+        <Box style={{ marginBottom: '30px' }}>
           <Box style={{ display: 'flex' }}>
-            <Box>Địa bàn: </Box>
-            <Box style={{ marginLeft: '150px' }}>{Addresses?.description} </Box>
+            <Box>Địa Bàn: </Box>
+            <Box style={{ marginLeft: '150px' }}>{Addresses?.description}</Box>
           </Box>
           <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
             <Box>Phường/Xã: </Box>
@@ -274,38 +243,17 @@ export default function User() {
                 id="demo-simple-select"
                 style={{ height: '30px' }}
                 value={regionsChoose}
-                onChange={(e) => handleChangeRegion(e)}
+                onChange={(e) => setRegionsChoose(e?.target?.value)}
               >
                 {regions?.map((e) => (
                   <MenuItem value={e?.regionID}>{e?.description}</MenuItem>
                 ))}
-                {/* <MenuItem value={0}>Chưa giao</MenuItem>
-                <MenuItem value={1}>Giao thành công</MenuItem>
-                <MenuItem value={2}>Giao thất bại</MenuItem> */}
               </Select>
             </FormControl>
           </Box>
-          {/* <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Trạng thái xác nhận: </Box>
-            <FormControl style={{ marginTop: '10px', marginLeft: '50px' }}>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={statusAllChoose}
-                style={{ height: '30px' }}
-                onChange={(e) => handleChangeDeliveryStatus(e)}
-              >
-                <MenuItem value={0}>Tất Cả</MenuItem>
-                <MenuItem value={1}>Chưa xác nhận</MenuItem>
-                <MenuItem value={2}>Đã xác nhận</MenuItem>
-                <MenuItem value={3}>Chờ thu gom</MenuItem>
-              </Select>
-            </FormControl>
-          </Box> */}
-        </Box>
-        <Box style={{ marginBottom: '30px' }}>
-          <Box sx={{ display: 'flex', marginBottom: '15px', alignItems: 'center', height: '56px' }}>
-            <Typography textAlign="center">Tên Cửa Hàng : </Typography>
+
+          <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
+            <Box>Tên Cửa Hàng: </Box>
             <input
               style={{
                 width: '120px',
@@ -318,22 +266,7 @@ export default function User() {
               onChange={(e) => setShopName(e.target.value)}
             />
           </Box>
-          <Box sx={{ display: 'flex' }}>
-            <Typography>Tên Món Hàng : </Typography>
-            <input
-              style={{
-                width: '120px',
-                height: '25px',
-                marginLeft: '65px',
-                borderRadius: '25px',
-                padding: '5px',
-              }}
-              value={packageName}
-              onChange={(e) => setPackageName(e.target.value)}
-            />
-          </Box>
         </Box>
-
         <Card>
           {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
 
@@ -341,14 +274,15 @@ export default function User() {
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
                 <UserListHead
-                  // order={order}
-                  // orderBy={orderBy}
+                  order={order}
+                  orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={listUser.length}
+                  rowCount={listProduct.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
+
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const {
@@ -356,13 +290,13 @@ export default function User() {
                       shopName,
                       shopkeeperName,
                       shopAddress,
-                      packageName,
                       shopPhone,
                       registerDate,
+                      migrationStatus,
                       deliveryAddress,
                     } = row;
 
-                    const isItemSelected = selected.indexOf(shopOrderID) !== -1;
+                    const isItemSelected = selected.indexOf(shopName) !== -1;
 
                     return (
                       <TableRow
@@ -372,6 +306,10 @@ export default function User() {
                         role="checkbox"
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
+                        onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}
                       >
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
@@ -381,21 +319,22 @@ export default function User() {
                         <TableCell align="left">{shopName}</TableCell>
                         <TableCell align="left">{shopkeeperName}</TableCell>
                         <TableCell align="left">{shopAddress}</TableCell>
-
                         <TableCell align="left">{shopPhone}</TableCell>
-                        <TableCell align="left">{registerDate}</TableCell>
-                        <TableCell align="left">{packageName}</TableCell>
-                        <TableCell align="left">{deliveryAddress}</TableCell>
-                        <TableCell align="left">
-                          <Button onClick={() => handleCapability(shopOrderID)}>Giao</Button>
-                        </TableCell>
-                        <TableCell align="left">
-                          <Button onClick={() => handleDismiss(shopOrderID)}>Huỷ</Button>
-                        </TableCell>
 
-                        {/* <TableCell align="right">
-                          <UserMoreMenu />
-                        </TableCell> */}
+                        <TableCell align="left">{registerDate}</TableCell>
+                        <TableCell align="left">{deliveryAddress}</TableCell>
+                        <FormControl style={{ marginTop: '10px' }}>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            style={{ height: '30px' }}
+                            value={migrationStatus}
+                            onChange={(e) => handleChangeStatus(e?.target?.value, shopOrderID)}
+                          >
+                            <MenuItem value={0}> Chưa nhập</MenuItem>
+                            <MenuItem value={1}> Đã nhập</MenuItem>
+                          </Select>
+                        </FormControl>
                       </TableRow>
                     );
                   })}
@@ -422,7 +361,7 @@ export default function User() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={listUser.length}
+            count={listProduct.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -430,6 +369,7 @@ export default function User() {
           />
         </Card>
       </Container>
+      <SimpleDialog open={open} itemProp={itemProp} onClose={() => setOpen(false)} />
     </Page>
   );
 }

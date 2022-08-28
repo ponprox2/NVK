@@ -13,6 +13,12 @@ import {
   API_GET_SHOP_ORDER_ASSIGNMENT_CAPABILITY,
   API_SHIPPER_ASSIGNMENT,
   API_LOGIN,
+  API_UPDATE_EXPORTATION,
+  API_GET_EXPORTATION,
+  API_UPDATE_IMPORTATION,
+  API_GET_IMPORTATION,
+  API_UPDATE_DELIVERY_RESULTS,
+  API_GET_DELIVERY_RESULTS,
 } from './config';
 
 export const getWorkingTerritory = async (id) => {
@@ -24,6 +30,60 @@ export const getWorkingTerritory = async (id) => {
   }
 };
 
+export const getDeliveryResultAPI = async (body) => {
+  try {
+    const response = await axios.get(
+      `${API_GET_DELIVERY_RESULTS}?warehouseStaffID=${body.staffID}&regionID=${body.regionID}&shopName=${body.shopName}`
+    );
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+export const updateDeliveryResultAPI = async (body) => {
+  try {
+    const response = await axios.post(API_UPDATE_DELIVERY_RESULTS, body);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+export const getImportationAPI = async (body) => {
+  try {
+    const response = await axios.get(
+      `${API_GET_IMPORTATION}?staffID=${body.staffID}&regionID=${body.regionID}&shopName=${body.shopName}`
+    );
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+export const updateImportationAPI = async (body) => {
+  try {
+    const response = await axios.post(API_UPDATE_IMPORTATION, body);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+export const getExportationAPI = async (body) => {
+  try {
+    const response = await axios.get(
+      `${API_GET_EXPORTATION}?staffID=${body.staffID}&regionID=${body.regionID}&shopName=${body.shopName}`
+    );
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+export const updateExportationAPI = async (body) => {
+  try {
+    const response = await axios.post(API_UPDATE_EXPORTATION, body);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
 export const shipperAssigmentAPI = async (body) => {
   try {
     const response = await axios.post(API_SHIPPER_ASSIGNMENT, body);
@@ -116,7 +176,7 @@ export const updateDeliveryHistory = async (body) => {
 export const getShopOrdersConfirming = async (body) => {
   try {
     const response = await axios.get(
-      `${API_GET_SHOP_ORDER_CONFIRM}?staffID=${body?.staffID}&regionID=${body?.regionID}&deliveryStatus=${body?.status}`
+      `${API_GET_SHOP_ORDER_CONFIRM}?staffID=${body?.staffID1}&regionID=${body?.regionID}&deliveryStatus=${body?.status}`
     );
     return response;
   } catch (error) {

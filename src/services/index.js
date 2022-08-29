@@ -114,12 +114,10 @@ export const getShopOrderAssignmentAPI = async (body) => {
 };
 
 export const getShopOrderDismissionAPI = async (body) => {
-  try {
+
     const response = await axios.post(API_SHOP_ORDER_ASSIGNMENT_DISMISSION, body);
     return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
+
 };
 
 export const getShopOrderAssignmentCapabilityAPI = async (id) => {

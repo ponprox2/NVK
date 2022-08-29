@@ -37,14 +37,14 @@ import { getWorkingTerritory, getRegion, getExportationAPI, updateExportationAPI
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'shopOrderID', label: 'shopOrderID', alignRight: false },
-  { id: 'shopName', label: 'shopName', alignRight: false },
-  { id: 'shopkeeperName', label: 'shopkeeperName', alignRight: false },
-  { id: 'shopAddress', label: 'shopAddress', alignRight: false },
-  { id: 'shopPhone', label: 'shopPhone', alignRight: false },
-  { id: 'registerDate', label: 'registerDate', alignRight: false },
-  { id: 'deliveryAddress ', label: 'deliveryAddress ', alignRight: false },
-  { id: 'status', label: 'status', alignRight: false },
+  { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
+  { id: 'shopName', label: 'Tên cửa hàng', alignRight: false },
+  { id: 'shopkeeperName', label: 'Chủ cửa hàng', alignRight: false },
+  { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
+  { id: 'shopPhone', label: 'SĐT cửa hàng', alignRight: false },
+  { id: 'registerDate', label: 'Ngày đăng ký', alignRight: false },
+  { id: 'deliveryAddress ', label: 'Địa chỉ giao hàng', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
 ];
 // const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate } = row;
 
@@ -222,7 +222,7 @@ export default function Exportation() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Xác Nhận Kết Quả Giao Hàng
+            Xuất Hàng Ra Khỏi Kho
           </Typography>
           <Button variant="contained" onClick={updateExportation}>
             Lưu
@@ -230,12 +230,12 @@ export default function Exportation() {
         </Stack>
         <Box style={{ marginBottom: '30px' }}>
           <Box style={{ display: 'flex' }}>
-            <Box>Địa Bàn: </Box>
-            <Box style={{ marginLeft: '150px' }}>{Addresses?.description}</Box>
+            <Box>Khu vực giao hàng</Box>
+            <Box style={{ marginLeft: '117px' }}>{Addresses?.description}</Box>
           </Box>
           <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Phường/Xã: </Box>
-            <FormControl style={{ marginTop: '10px', marginLeft: '110px' }}>
+            <Box>Phường/xã giao hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '95px' }}>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -251,12 +251,12 @@ export default function Exportation() {
           </Box>
 
           <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Tên Cửa Hàng: </Box>
+            <Box>Tên cửa hàng</Box>
             <input
               style={{
                 width: '120px',
                 height: '25px',
-                marginLeft: '70px',
+                marginLeft: '150px',
                 borderRadius: '25px',
                 padding: '5px',
               }}

@@ -37,14 +37,15 @@ import { getWorkingTerritory, getRegion, getDeliveryResultAPI, updateDeliveryRes
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'shopOrderID', label: 'shopOrderID', alignRight: false },
-  { id: 'shopName', label: 'shopName', alignRight: false },
-  { id: 'shopkeeperName', label: 'shopkeeperName', alignRight: false },
-  { id: 'shopAddress', label: 'shopAddress', alignRight: false },
-  { id: 'shopPhone', label: 'shopPhone', alignRight: false },
-  { id: 'registerDate', label: 'registerDate', alignRight: false },
-  { id: 'deliveryAddress ', label: 'deliveryAddress ', alignRight: false },
-  { id: 'status', label: 'status', alignRight: false },
+  { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
+  { id: 'shopName', label: 'Tên cửa hàng', alignRight: false },
+  { id: 'shopkeeperName', label: 'Chủ cửa hàng', alignRight: false },
+  { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
+  { id: 'shopPhone', label: 'SĐT cửa hàng', alignRight: false },
+  { id: 'registerDate', label: 'Ngày gửi đơn', alignRight: false },
+  { id: 'deliveryAddress ', label: 'Địa chỉ giao', alignRight: false },
+  { id: 'statusID', label: 'Kết quả', alignRight: false },
+  { id: 'confirmation', label: 'Xác nhận', alignRight: false },
 ];
 // const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate } = row;
 
@@ -159,7 +160,7 @@ export default function Exportation() {
     const tempArr = listProduct.filter((e) => e.shopOrderID !== id);
     let temp1 = [];
 
-    temp[0].migrationStatus = event;
+    temp[0].confirmation = event;
     temp1 = temp;
     const temp2 = [...temp1, ...tempArr];
     temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
@@ -224,7 +225,7 @@ export default function Exportation() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Xác Nhận Đơn Hàng Từ Cửa Hàng
+            Xác Nhận Kết Quả Giao Hàng
           </Typography>
           <Button variant="contained" onClick={updateDeliveryResult}>
             Lưu
@@ -232,12 +233,12 @@ export default function Exportation() {
         </Stack>
         <Box style={{ marginBottom: '30px' }}>
           <Box style={{ display: 'flex' }}>
-            <Box>Địa Bàn: </Box>
-            <Box style={{ marginLeft: '150px' }}>{Addresses?.description}</Box>
+            <Box>Khu vực giao hàng</Box>
+            <Box style={{ marginLeft: '117px' }}>{Addresses?.description}</Box>
           </Box>
           <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Phường/Xã: </Box>
-            <FormControl style={{ marginTop: '10px', marginLeft: '110px' }}>
+            <Box>Phường/xã giao hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '95px' }}>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -253,12 +254,12 @@ export default function Exportation() {
           </Box>
 
           <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Tên Cửa Hàng: </Box>
+            <Box>Tên cửa hàng</Box>
             <input
               style={{
                 width: '120px',
                 height: '25px',
-                marginLeft: '70px',
+                marginLeft: '150px',
                 borderRadius: '25px',
                 padding: '5px',
               }}
@@ -292,8 +293,9 @@ export default function Exportation() {
                       shopAddress,
                       shopPhone,
                       registerDate,
-                      migrationStatus,
+                      confirmation,
                       deliveryAddress,
+                      statusID
                     } = row;
 
                     const isItemSelected = selected.indexOf(shopName) !== -1;
@@ -323,16 +325,17 @@ export default function Exportation() {
 
                         <TableCell align="left">{registerDate}</TableCell>
                         <TableCell align="left">{deliveryAddress}</TableCell>
+                        <TableCell align="left">{statusID==='0'?'Thành Công':'Thất bại'}</TableCell>
                         <FormControl style={{ marginTop: '10px' }}>
                           <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
                             style={{ height: '30px' }}
-                            value={migrationStatus}
+                            value={confirmation}
                             onChange={(e) => handleChangeStatus(e?.target?.value, shopOrderID)}
                           >
-                            <MenuItem value={0}> Chưa nhập</MenuItem>
-                            <MenuItem value={1}> Đã nhập</MenuItem>
+                            <MenuItem value={0}>Chưa xác nhận</MenuItem>
+                            <MenuItem value={1}>Xác nhận</MenuItem>
                           </Select>
                         </FormControl>
                       </TableRow>

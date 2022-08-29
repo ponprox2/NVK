@@ -37,13 +37,13 @@ import { getWorkingTerritory, getRegion, updateDeliveryHistory, getShopOrdersCon
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'shopOrderID', label: 'shopOrderID', alignRight: false },
-  { id: 'shopName', label: 'shopName', alignRight: false },
-  { id: 'shopkeeperName', label: 'shopkeeperName', alignRight: false },
-  { id: 'shopAddress', label: 'shopAddress', alignRight: false },
-  { id: 'shopPhone', label: 'shopPhone', alignRight: false },
-  { id: 'registerDate', label: 'registerDate', alignRight: false },
-  { id: 'status', label: 'status', alignRight: false },
+  { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
+  { id: 'shopName', label: 'Tên cửa hàng', alignRight: false },
+  { id: 'shopkeeperName', label: 'Chủ cửa hàng', alignRight: false },
+  { id: 'shopAddress', label: 'Địa chỉ giao', alignRight: false },
+  { id: 'shopPhone', label: 'SĐT cửa hàng', alignRight: false },
+  { id: 'registerDate', label: 'Ngày gửi đơn', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
 ];
 // const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate } = row;
 
@@ -230,12 +230,12 @@ export default function User() {
         </Stack>
         <Box style={{ marginBottom: '30px' }}>
           <Box style={{ display: 'flex' }}>
-            <Box>Nhà kho: </Box>
-            <Box style={{ marginLeft: '150px' }}>{Addresses?.description}</Box>
+            <Box>Khu vực giao hàng</Box>
+            <Box style={{ marginLeft: '117px' }}>{Addresses?.description}</Box>
           </Box>
           <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Địa chỉ kho: </Box>
-            <FormControl style={{ marginTop: '10px', marginLeft: '110px' }}>
+            <Box>Phường/xã giao hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '95px' }}>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -251,8 +251,8 @@ export default function User() {
           </Box>
 
           <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Trạng thái đơn hàng: </Box>
-            <FormControl style={{ marginTop: '10px', marginLeft: '110px' }}>
+            <Box>Trạng thái đơn hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '105px' }}>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"

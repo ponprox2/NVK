@@ -46,14 +46,14 @@ import {
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'shopOrderID', label: 'shopOrderID', alignRight: false },
-  { id: 'shopName', label: 'shopName', alignRight: false },
-  { id: 'shopkeeperName', label: 'shopkeeperName', alignRight: false },
-  { id: 'shopAddress', label: 'shopAddress', alignRight: false },
-  { id: 'shopPhone', label: 'shopPhone', alignRight: false },
-  { id: 'registerDate', label: 'registerDate', alignRight: false },
-  { id: 'packageName', label: 'packageName', alignRight: false },
-  { id: 'deliveryAddress', label: 'deliveryAddress', alignRight: false },
+  { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
+  { id: 'shopName', label: 'Tên cửa hàng', alignRight: false },
+  { id: 'shopkeeperName', label: 'Chủ cửa hàng', alignRight: false },
+  { id: 'shopAddress', label: 'Tên cửa hàng', alignRight: false },
+  { id: 'shopPhone', label: 'SĐT cửa hàng', alignRight: false },
+  { id: 'registerDate', label: 'Ngày gửi đơn hàng', alignRight: false },
+  { id: 'packageName', label: 'Tên món hàng', alignRight: false },
+  { id: 'deliveryAddress', label: 'Địa chỉ vận chuyển', alignRight: false },
   { id: 'GIAODON', label: 'Giao đơn', alignRight: false },
   { id: 'deliveryAddress', label: 'Huỷ giao đơn', alignRight: false },
 ];
@@ -107,6 +107,7 @@ export default function User() {
   const [Addresses, setAddresses] = useState('');
   const staffID1 = localStorage.getItem('staffID');
   const [listOrder, setListOrder] = useState([]);
+  const [error1, setError1] = useState('')
 
   const [listUser, setListUser] = useState([]);
   const [shopName, setShopName] = useState('');
@@ -176,16 +177,22 @@ export default function User() {
       shopOrderID: id,
     };
     try {
-      getShopOrderDismissionAPI(body);
+      const res = await getShopOrderDismissionAPI(body);
+      console.log(res);
+      if(res.status === 200){
+          setError1(res.data);
+      }
     } catch (error) {
-      console.log(error);
+      setError1(error.response.message);
     }
   };
   const handleCapability = async (id) => {
     try {
-      const res = getShopOrderAssignmentCapabilityAPI(id);
-
-      navigate(`/dashboard/orderHistory?id=${id}`);
+      const res = await getShopOrderAssignmentCapabilityAPI(id);
+      console.log(res.data)
+      if(res.data === 1){
+        navigate(`/dashboard/orderHistory?id=${id}`);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -261,14 +268,15 @@ export default function User() {
             Lưu
           </Button>
         </Stack>
+
         <Box>
           <Box style={{ display: 'flex' }}>
-            <Box>Địa bàn: </Box>
-            <Box style={{ marginLeft: '150px' }}>{Addresses?.description} </Box>
+            <Box>Khu vực giao hàng</Box>
+            <Box style={{ marginLeft: '117px' }}>{Addresses?.description} </Box>
           </Box>
           <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Phường/Xã: </Box>
-            <FormControl style={{ marginTop: '10px', marginLeft: '110px' }}>
+            <Box>Phường/xã giao hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '95px' }}>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -305,12 +313,12 @@ export default function User() {
         </Box>
         <Box style={{ marginBottom: '30px' }}>
           <Box sx={{ display: 'flex', marginBottom: '15px', alignItems: 'center', height: '56px' }}>
-            <Typography textAlign="center">Tên Cửa Hàng : </Typography>
+            <Typography textAlign="center">Tên cửa hàng</Typography>
             <input
               style={{
                 width: '120px',
                 height: '25px',
-                marginLeft: '70px',
+                marginLeft: '148px',
                 borderRadius: '25px',
                 padding: '5px',
               }}
@@ -319,12 +327,12 @@ export default function User() {
             />
           </Box>
           <Box sx={{ display: 'flex' }}>
-            <Typography>Tên Món Hàng : </Typography>
+            <Typography>Tên món hàng</Typography>
             <input
               style={{
                 width: '120px',
                 height: '25px',
-                marginLeft: '65px',
+                marginLeft: '145px',
                 borderRadius: '25px',
                 padding: '5px',
               }}
@@ -333,7 +341,9 @@ export default function User() {
             />
           </Box>
         </Box>
-
+        <Typography>
+                {error1}
+              </Typography>
         <Card>
           {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
 

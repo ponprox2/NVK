@@ -33,9 +33,9 @@ import { getDetailPackageAPI, getShopOrderHistoryAPI, getFreeShiperAPI, shipperA
 
 const TABLE_HEAD = [
   { id: 'STT', label: 'STT', alignRight: false },
-  { id: 'time', label: 'Thời gian', alignRight: false },
-  { id: 'staffName', label: 'Tên nhân viên', alignRight: false },
-  { id: 'status', label: 'Trạng thái', alignRight: false },
+  { id: 'time', label: 'Mã shipper', alignRight: false },
+  { id: 'staffName', label: 'Tên shipper', alignRight: false },
+  { id: 'status', label: 'Xác nhận giao đơn', alignRight: false },
 ];
 
 function DetailOrder() {
@@ -46,6 +46,8 @@ function DetailOrder() {
   const [orderDetail, setOrderDetail] = useState({});
   const [listOrderDetail, setListOrderDetail] = useState([]);
   const [shipperName, setShipperName] = useState('');
+  const [error1, setError1] = useState('');
+  const staffId = localStorage.getItem('staffID')
 
   const getDetailPackage = async (body) => {
     try {
@@ -84,7 +86,7 @@ function DetailOrder() {
   const handleAssignment = async (idShipper) => {
     const body = {
       shopOrderID: id,
-      warehouseStaffID: 123,
+      warehouseStaffID: staffId,
       shipperID: idShipper,
     };
     try {
@@ -94,43 +96,46 @@ function DetailOrder() {
         navigate('/dashboard/user');
       }
     } catch (error) {
-      console.log(error);
+      setError1(error.response.message)
     }
   };
   return (
     <>
       <Box>
-        <Box style={{ margin: '20px 0px 50px 30px' }}> Lịch Sử Đơn Hàng</Box>
+        <Box style={{ margin: '20px 0px 50px 30px' }}> </Box>
         <Box style={{ width: '90%', margin: '0 auto', display: 'flex', justifyContent: 'space-between' }}>
           <Box width="90%">
-            <h2 style={{ lineHeight: '30px' }}>Cửa hàng</h2>
+            <h2 style={{ lineHeight: '30px' }}>Giao Đơn Hàng Cho Nhân Viên Vận Chuyển</h2>
             <Divider />
-            <Typography style={{ lineHeight: '30px' }}>shopOrderID : {orderDetail?.shopOrderID}</Typography>
-            <Typography style={{ lineHeight: '25px' }}>Tên Cửa Hàng : {orderDetail?.shopName}</Typography>
+            <Typography style={{ lineHeight: '30px' }}>Mã đơn hàng : {orderDetail?.shopOrderID}</Typography>
+            <Typography style={{ lineHeight: '25px' }}>Tên cửa hàng : {orderDetail?.shopName}</Typography>
             {/* <Typography style={{ lineHeight: '25px' }}>Chủ Cửa Hàng : {orderDetail?.shopkeeperName}</Typography>
             <Typography style={{ lineHeight: '25px' }}>Địa Chỉ Cửa Hàng : {orderDetail?.shopAddress}</Typography>
             <Typography style={{ lineHeight: '30px' }}>shopEmail : {orderDetail?.shopEmail}</Typography>
             <Typography style={{ lineHeight: '25px' }}>shopPhone : {orderDetail?.shopPhone}</Typography> */}
 
-            <Typography style={{ lineHeight: '25px' }}>Thời Gian Đăng Ký : {orderDetail?.registerDate}</Typography>
-            <Typography style={{ lineHeight: '30px' }}>Tên Món Hàng: {orderDetail?.packageName} </Typography>
+            <Typography style={{ lineHeight: '25px' }}>Thời gian gửi đơn : {orderDetail?.registerDate}</Typography>
+            <Typography style={{ lineHeight: '30px' }}>Tên món hàng : {orderDetail?.packageName} </Typography>
 
             <Typography style={{ lineHeight: '25px' }}>Số lượng: {orderDetail?.quantity}</Typography>
             <Typography style={{ lineHeight: '25px' }}>Khối lượng : {orderDetail?.mass}</Typography>
-            <Typography style={{ lineHeight: '30px' }}>Đơn giá: {orderDetail?.unitPrice}</Typography>
+            <Typography style={{ lineHeight: '30px' }}>Đơn giá: {orderDetail?.unitPrice} vnđ</Typography>
 
-            <Typography style={{ lineHeight: '25px' }}>Phí ship {orderDetail?.shippingFee} </Typography>
-            <Typography style={{ lineHeight: '25px' }}>Tổng tiền : {orderDetail?.totalPrice}</Typography>
+            <Typography style={{ lineHeight: '25px' }}>Phí vận chuyển : {orderDetail?.shippingFee} vnđ</Typography>
+            <Typography style={{ lineHeight: '25px' }}>Tổng tiền : {orderDetail?.totalPrice} vnđ</Typography>
             <Typography style={{ lineHeight: '30px' }}>
-              Trạng thái thanh toán phí ship: {orderDetail?.shippingFeePayment ? 'Chưa thanh toán' : 'Đã thanh toán'}
+              Thanh toán phí vận chuyển: {orderDetail?.shippingFeePayment ? 'Chưa thanh toán' : 'Đã thanh toán'}
             </Typography>
 
             <Typography style={{ lineHeight: '25px' }}>
-              Trạng thái thanh toán tất cả: {orderDetail?.fullPayment ? 'Chưa thanh toán' : 'Đã thanh toán'}{' '}
+              Thanh toán toàn bộ: {orderDetail?.fullPayment ? 'Chưa thanh toán' : 'Đã thanh toán'}{' '}
             </Typography>
             <Typography style={{ lineHeight: '25px' }}>Địa chỉ giao hàng : {orderDetail?.deliveryAddress}</Typography>
           </Box>
         </Box>
+        <Typography>
+          {error1}
+        </Typography>
         {/* <Box width="49%">
             <h2 style={{ lineHeight: '30px' }}>Hàng hoá</h2>
             <Divider />
@@ -174,7 +179,7 @@ function DetailOrder() {
                 <TableRow hover tabIndex={-1} role="checkbox">
                   <TableCell padding="checkbox">{/* <Checkbox /> */}</TableCell>
 
-                  <TableCell align="left">{index}</TableCell>
+                  <TableCell align="left">{index + 1}</TableCell>
                   <TableCell align="left">{value?.staffID}</TableCell>
                   <TableCell align="left">{value?.name}</TableCell>
                   <TableCell align="left">

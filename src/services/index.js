@@ -19,7 +19,21 @@ import {
   API_GET_IMPORTATION,
   API_UPDATE_DELIVERY_RESULTS,
   API_GET_DELIVERY_RESULTS,
+  API_REGISTER,
+  API_GET_TERRITORY,
+  API_GET_MANGAGED_WAREHOUSES,
+  API_GET_UN_MANGAGED_WAREHOUSES,
+  API_UPDATE_UN_MANGAGED_WAREHOUSES,
 } from './config';
+
+export const registerAPI = async (body) => {
+  try {
+    const response = await axios.post(API_REGISTER, body);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
 
 export const getWorkingTerritory = async (id) => {
   try {
@@ -114,10 +128,8 @@ export const getShopOrderAssignmentAPI = async (body) => {
 };
 
 export const getShopOrderDismissionAPI = async (body) => {
-
-    const response = await axios.post(API_SHOP_ORDER_ASSIGNMENT_DISMISSION, body);
-    return response;
-
+  const response = await axios.post(API_SHOP_ORDER_ASSIGNMENT_DISMISSION, body);
+  return response;
 };
 
 export const getShopOrderAssignmentCapabilityAPI = async (id) => {
@@ -196,6 +208,41 @@ export const getDetailPackageAPI = async (body) => {
 export const getShopOrderHistoryAPI = async (shopOrderID) => {
   try {
     const response = await axios.get(`${API_GET_SHOP_ORDER_HISTORY}?shopOrderID=${shopOrderID}`);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const getTerritoryAPI = async () => {
+  try {
+    const response = await axios.get(API_GET_TERRITORY);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const getUnMangagedWarehouseAPI = async () => {
+  try {
+    const response = await axios.get(API_GET_UN_MANGAGED_WAREHOUSES);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+export const getMangagedWarehouseAPI = async (id) => {
+  try {
+    const response = await axios.get(`${API_GET_MANGAGED_WAREHOUSES}?managerID=${id}`);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const updateUnMangagedWarehouseAPI = async (body) => {
+  try {
+    const response = await axios.post(API_UPDATE_UN_MANGAGED_WAREHOUSES, body);
     return response;
   } catch (error) {
     return error?.response?.data || error;

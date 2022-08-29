@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
@@ -61,6 +62,9 @@ export default function Login() {
 
   const mdUp = useResponsive('up', 'md');
 
+  useEffect(() => {
+    localStorage.removeItem('staffID');
+  }, []);
   return (
     <Page title="Login">
       <RootStyle>

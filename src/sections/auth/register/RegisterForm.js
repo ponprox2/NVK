@@ -1,17 +1,43 @@
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormik, Form, FormikProvider } from 'formik';
 import { useNavigate } from 'react-router-dom';
 // material
-import { Stack, TextField, IconButton, InputAdornment } from '@mui/material';
+
+import {
+  Card,
+  Table,
+  Avatar,
+  Button,
+  Checkbox,
+  TableRow,
+  TableBody,
+  TableCell,
+  Container,
+  Typography,
+  TableContainer,
+  TablePagination,
+  Select,
+  FormControl,
+  MenuItem,
+  InputLabel,
+  Box,
+  Stack,
+  TextField,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // component
 import Iconify from '../../../components/Iconify';
+import { registerAPI, getTerritoryAPI } from '../../../services/index';
 
 // ----------------------------------------------------------------------
 
 export default function RegisterForm() {
   const navigate = useNavigate();
+
+  const [listRegion, setListRegion] = useState([]);
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -20,13 +46,18 @@ export default function RegisterForm() {
   const [repass, setRepass] = useState('');
   const [email, setEmail] = useState('');
   const [bodyUser, setBodyUser] = useState({
-    u: '',
-    pw: '',
-    rpw: '',
-    e: '',
-    p: '',
-    role: 'admin',
+    citizenID: '',
+    name: '',
+    gender: '',
+    dateOfBirth: '',
+    phone: '',
+    email: '',
+    idRole: '3',
+    address: '',
   });
+  const [statusAll, setStatusAll] = useState(0);
+  const [statusAll1, setStatusAll1] = useState(0);
+  const [error1, setError1] = useState('');
 
   const handleChangeData = (e) => {
     const { name, value } = e.target;
@@ -36,8 +67,21 @@ export default function RegisterForm() {
       [name]: value,
     }));
   };
+  const getTerritory = async () => {
+    try {
+      const res = await getTerritoryAPI();
+      if (res?.data) {
+        setListRegion(res?.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    getTerritory();
+  }, []);
   const RegisterSchema = Yup.object().shape({
     fullName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Full name is required'),
     phone: Yup.string().required('Phone number is required'),
@@ -49,29 +93,47 @@ export default function RegisterForm() {
 
   const formik = useFormik({
     initialValues: {
-      fullName: '',
+      citizenID: '',
+      name: '',
+      gender: '',
+      dateOfBirth: '',
       phone: '',
-      username: '',
-      pass: '',
-      repass: '',
       email: '',
+      idRole: '2',
+      address: '',
     },
     validationSchema: RegisterSchema,
   });
 
-  const handleClick = () => {
-    console.log(bodyUser);
-    async function insertAdmin() {
-      // Chưa kiểm tra ràng buộc username không được trùng
-      // || email không được trùng || phone không được trùng
-      // const res = await axios.post('', data);
-      // // console.log(res.data);
-      // if (res?.data?.message === 'Auth successful' && res?.data?.role !== 'user') {
-      //   localStorage.setItem('adminInfo', JSON.stringify(res.data));
-      //   navigate('/dashboard/app');
-      // }
+  const register = async (body) => {
+    try {
+      const res = await registerAPI(body);
+      if (res?.status === 200) {
+        setError1(res?.response?.data);
+        navigate('/login');
+      }
+    } catch (error) {
+      setError1(error);
     }
-    insertAdmin();
+  };
+
+  const getDateOfBirth = (date) => {
+    let temp1 = '';
+    const temp2 = date?.split('/');
+    for (let i = temp2?.length - 1; i >= 0; i -= 1) {
+      temp1 += temp2[i];
+    }
+    return temp1;
+  };
+  const handleClick = () => {
+    const body = {
+      ...bodyUser,
+      dateOfBirth: getDateOfBirth(bodyUser?.dateOfBirth),
+      gender: statusAll1?.toString(),
+      workingTerritoryID: statusAll?.toString(),
+    };
+    console.log(getDateOfBirth(bodyUser?.dateOfBirth));
+    register(body);
   };
 
   const { errors, touched, handleSubmit, isSubmitting, getFieldProps } = formik;
@@ -83,39 +145,92 @@ export default function RegisterForm() {
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TextField
               fullWidth
-              label="Full name"
-              name="n"
-              value={bodyUser.n}
+              label="CMND/CCCD"
+              name="citizenID"
+              value={bodyUser.citizenID}
               onChange={handleChangeData}
-              // {...getFieldProps('fullName')}
-              // error={Boolean(touched.fullName && errors.fullName)}
-              // helperText={touched.fullName && errors.fullName}
             />
 
+            <TextField fullWidth label="Họ và Tên" name="name" value={bodyUser.name} onChange={handleChangeData} />
+          </Stack>
+          <Stack sx={{ display: 'flex' }}>
             <TextField
-              fullWidth
-              label="Phone number"
-              name="p"
-              value={bodyUser.p}
+              sx={{ marginBottom: '30px' }}
+              label="Ngày sinh"
+              name="dateOfBirth"
+              value={bodyUser.dateOfBirth}
               onChange={handleChangeData}
-              // {...getFieldProps('phone')}
-              // error={Boolean(touched.phone && errors.phone)}
-              // helperText={touched.phone && errors.phone}
             />
+            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '30px', width: '200px' }}>
+              <Box>Giới tính</Box>
+              <FormControl style={{ marginTop: '-5px' }}>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={statusAll1}
+                  style={{ height: '30px', marginLeft: '20px' }}
+                  onChange={(e) => setStatusAll1(e?.target?.value)}
+                >
+                  <MenuItem value={1}>Nữ</MenuItem>
+                  <MenuItem value={0}>Nam</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
           </Stack>
           <TextField
             fullWidth
-            autoComplete="username"
+            autoComplete="phone"
             // type=""
-            label="User name"
-            name="u"
-            value={bodyUser.u}
+            label="phone "
+            name="phone"
+            value={bodyUser.phone}
             onChange={handleChangeData}
             // {...getFieldProps('username')}
             // error={Boolean(touched.username && errors.username)}
             // helperText={touched.username && errors.username}
           />
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+
+          <TextField
+            fullWidth
+            autoComplete="email"
+            type="email"
+            label="Email address"
+            onChange={handleChangeData}
+            name="email"
+            value={bodyUser.email}
+            // {...getFieldProps('email')}
+            // error={Boolean(touched.email && errors.email)}
+            // helperText={touched.email && errors.email}
+          />
+          <TextField
+            fullWidth
+            autoComplete="address"
+            type="address"
+            label="address"
+            onChange={handleChangeData}
+            name="address"
+            value={bodyUser.address}
+            // {...getFieldProps('email')}
+            // error={Boolean(touched.email && errors.email)}
+            // helperText={touched.email && errors.email}
+          />
+          <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
+            <Box>Khu vực giao hàng</Box>
+            <FormControl style={{ marginTop: '-5px' }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={statusAll}
+                style={{ height: '30px', marginLeft: '20px' }}
+                onChange={(e) => setStatusAll(e?.target?.value)}
+              >
+                {listRegion?.map((e) => (
+                  <MenuItem value={e?.territoryID}>{e?.description}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          {/* <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TextField
               fullWidth
               label="Password"
@@ -157,24 +272,11 @@ export default function RegisterForm() {
                 ),
               }}
             />
-          </Stack>
-
-          <TextField
-            fullWidth
-            autoComplete="username"
-            type="email"
-            label="Email address"
-            onChange={handleChangeData}
-            name="e"
-            value={bodyUser.e}
-            // {...getFieldProps('email')}
-            // error={Boolean(touched.email && errors.email)}
-            // helperText={touched.email && errors.email}
-          />
-
-          <LoadingButton fullWidth size="large" variant="contained" onClick={handleClick}>
+          </Stack> */}
+          <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
+          <Button fullWidth size="large" variant="contained" onClick={handleClick}>
             Register
-          </LoadingButton>
+          </Button>
         </Stack>
       </Form>
     </FormikProvider>

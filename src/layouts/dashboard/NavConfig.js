@@ -14,34 +14,34 @@ const navConfig = [
   {
     title: 'Xác Nhận Đơn Hàng Từ Cửa Hàng',
     path: '/dashboard/products',
-  //  icon: getIcon('eva:shopping-bag-fill'),
+    //  icon: getIcon('eva:shopping-bag-fill'),
   },
   {
     title: 'Nhập Hàng Vào Kho',
     path: '/dashboard/order',
-  //  icon: getIcon('eva:alert-triangle-fill'),
+    //  icon: getIcon('eva:alert-triangle-fill'),
   },
   {
     title: 'Giao Đơn Hàng Cho Nhân Viên Vận Chuyển',
     path: '/dashboard/user',
-  //  icon: getIcon('eva:people-fill'),
+    //  icon: getIcon('eva:people-fill'),
   },
   {
     title: 'Xuất Hàng Ra Khỏi Kho',
     path: '/dashboard/Exportation',
-  //  icon: getIcon('eva:file-text-fill'),
+    //  icon: getIcon('eva:file-text-fill'),
   },
   {
     title: 'Xác Nhận Kết Quả Giao Hàng',
     path: '/dashboard/confirmOrder',
-  //  icon: getIcon('eva:file-text-fill'),
+    //  icon: getIcon('eva:file-text-fill'),
   },
+
   {
     title: 'logout',
-    path: '/logout',
-   // icon: getIcon('eva:lock-fill'),
-  }
-  ,
+    path: '/login',
+    // icon: getIcon('eva:lock-fill'),
+  },
   // {
   //   title: 'register',
   //   path: '/dashboard/register',

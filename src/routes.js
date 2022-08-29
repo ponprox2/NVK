@@ -15,6 +15,7 @@ import DetailOrder from './pages/detailOrder';
 import UpdProduct from './pages/updateProduct';
 import Exportation from './pages/Exportation';
 import ConfirmOrder from './pages/ConfirmOrder';
+import UpdateWareHose from './pages/UpdateWareHose';
 
 // ----------------------------------------------------------------------
 
@@ -36,6 +37,7 @@ export default function Router() {
         { path: 'orderHistory/', element: <DetailOrder /> },
         { path: 'Exportation/', element: <Exportation /> },
         { path: 'confirmOrder/', element: <ConfirmOrder /> },
+        { path: 'updateWareHose/', element: <UpdateWareHose /> },
       ],
     },
     {

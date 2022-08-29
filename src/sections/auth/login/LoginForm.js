@@ -73,8 +73,6 @@ export default function LoginForm() {
                 </InputAdornment>
               ),
             }}
-            error={Boolean(touched.password && errors.password)}
-            helperText={touched.password && errors.password}
           />
         </Stack>
 

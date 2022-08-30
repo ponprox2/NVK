@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useFormik, Form, FormikProvider } from 'formik';
 // material
-import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormControlLabel } from '@mui/material';
+import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormControlLabel, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
 import Iconify from '../../../components/Iconify';
@@ -16,6 +16,7 @@ export default function LoginForm() {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const[error1, setError1] = useState('');
 
   const LoginSchema = Yup.object().shape({
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
@@ -47,14 +48,15 @@ export default function LoginForm() {
       const res = await loginAPI(body);
       if (res?.status === 200) {
         localStorage.setItem('staffID', userName);
-        navigate('/dashboard/app');
+        navigate('/dashboard/products');
       }
     } catch (error) {
-      console.log(error);
+      setError1(error?.response.data);
     }
   };
   return (
     <FormikProvider value={formik}>
+       <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
       <Form autoComplete="off" noValidate>
         <Stack spacing={3}>
           <TextField fullWidth autoComplete="username" onChange={(e) => setUserName(e.target.value)} />

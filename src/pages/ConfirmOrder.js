@@ -106,6 +106,7 @@ export default function Exportation() {
   const [open, setOpen] = useState(false);
   const [itemProp, setItemProp] = useState({});
   const [shopName, setShopName] = useState('');
+  const [error1, setError1] = useState('');
 
   async function getWorkingTerritoryAPI(id) {
     const res = await getWorkingTerritory(id);
@@ -126,9 +127,14 @@ export default function Exportation() {
       confirmation: e?.confirmation,
       warehouseStaffID: e?.warehouseStaffID,
     }));
-    const res = await updateDeliveryResultAPI(body);
-    if (res?.status === 200) {
-      console.log(res?.data);
+
+    try {
+      const res = await updateDeliveryResultAPI(body);
+      if (res?.status === 200) {
+        setError1(res?.data);
+      }
+    } catch (error) {
+      setError1(error?.response.data);
     }
   };
 
@@ -231,6 +237,7 @@ export default function Exportation() {
             Lưu
           </Button>
         </Stack>
+        <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
         <Box style={{ marginBottom: '30px' }}>
           <Box style={{ display: 'flex' }}>
             <Box>Khu vực giao hàng</Box>

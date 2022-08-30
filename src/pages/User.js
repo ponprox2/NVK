@@ -49,13 +49,14 @@ const TABLE_HEAD = [
   { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
   { id: 'shopName', label: 'Tên cửa hàng', alignRight: false },
   { id: 'shopkeeperName', label: 'Chủ cửa hàng', alignRight: false },
-  { id: 'shopAddress', label: 'Tên cửa hàng', alignRight: false },
+  { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
   { id: 'shopPhone', label: 'SĐT cửa hàng', alignRight: false },
   { id: 'registerDate', label: 'Ngày gửi đơn hàng', alignRight: false },
   { id: 'packageName', label: 'Tên món hàng', alignRight: false },
   { id: 'deliveryAddress', label: 'Địa chỉ vận chuyển', alignRight: false },
+  { id: 'statusDescription', label: 'Trạng thái', alignRight: false },
   { id: 'GIAODON', label: 'Giao đơn', alignRight: false },
-  { id: 'deliveryAddress', label: 'Huỷ giao đơn', alignRight: false },
+  { id: 'HUYDON', label: 'Huỷ giao đơn', alignRight: false },
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -180,10 +181,11 @@ export default function User() {
       const res = await getShopOrderDismissionAPI(body);
       console.log(res);
       if(res.status === 200){
+          getShopOrderAssignment();
           setError1(res.data);
       }
     } catch (error) {
-      setError1(error.response.message);
+      setError1(error?.response.data);
     }
   };
   const handleCapability = async (id) => {
@@ -258,7 +260,7 @@ export default function User() {
           <Typography variant="h4" gutterBottom>
             Giao Đơn Hàng Cho Nhân Viên Vận Chuyển
           </Typography>
-          <Button
+          {/* <Button
             variant="contained"
             // component={RouterLink}
             // to="#"
@@ -266,7 +268,7 @@ export default function User() {
             startIcon={<Iconify icon="eva:plus-fill" />}
           >
             Lưu
-          </Button>
+          </Button> */}
         </Stack>
 
         <Box>
@@ -341,9 +343,7 @@ export default function User() {
             />
           </Box>
         </Box>
-        <Typography>
-                {error1}
-              </Typography>
+        <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
         <Card>
           {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
 
@@ -370,6 +370,7 @@ export default function User() {
                       shopPhone,
                       registerDate,
                       deliveryAddress,
+                      statusDescription
                     } = row;
 
                     const isItemSelected = selected.indexOf(shopOrderID) !== -1;
@@ -396,6 +397,7 @@ export default function User() {
                         <TableCell align="left">{registerDate}</TableCell>
                         <TableCell align="left">{packageName}</TableCell>
                         <TableCell align="left">{deliveryAddress}</TableCell>
+                        <TableCell align="left">{statusDescription}</TableCell>
                         <TableCell align="left">
                           <Button onClick={() => handleCapability(shopOrderID)}>Giao</Button>
                         </TableCell>

@@ -96,7 +96,7 @@ function DetailOrder() {
         navigate('/dashboard/user');
       }
     } catch (error) {
-      setError1(error.response.message)
+      setError1(error?.response.data);
     }
   };
   return (
@@ -105,7 +105,7 @@ function DetailOrder() {
         <Box style={{ margin: '20px 0px 50px 30px' }}> </Box>
         <Box style={{ width: '90%', margin: '0 auto', display: 'flex', justifyContent: 'space-between' }}>
           <Box width="90%">
-            <h2 style={{ lineHeight: '30px' }}>Giao Đơn Hàng Cho Nhân Viên Vận Chuyển</h2>
+            <h2 style={{ lineHeight: '30px' }}>Chọn Nhân Viên Nhận Đơn Hàng</h2>
             <Divider />
             <Typography style={{ lineHeight: '30px' }}>Mã đơn hàng : {orderDetail?.shopOrderID}</Typography>
             <Typography style={{ lineHeight: '25px' }}>Tên cửa hàng : {orderDetail?.shopName}</Typography>
@@ -133,9 +133,7 @@ function DetailOrder() {
             <Typography style={{ lineHeight: '25px' }}>Địa chỉ giao hàng : {orderDetail?.deliveryAddress}</Typography>
           </Box>
         </Box>
-        <Typography>
-          {error1}
-        </Typography>
+        <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
         {/* <Box width="49%">
             <h2 style={{ lineHeight: '30px' }}>Hàng hoá</h2>
             <Divider />

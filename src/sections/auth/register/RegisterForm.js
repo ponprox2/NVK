@@ -109,11 +109,11 @@ export default function RegisterForm() {
     try {
       const res = await registerAPI(body);
       if (res?.status === 200) {
-        setError1(res?.response?.data);
+        setError1(res?.data);
         navigate('/login');
       }
     } catch (error) {
-      setError1(error);
+      setError1(error?.response.data);
     }
   };
 

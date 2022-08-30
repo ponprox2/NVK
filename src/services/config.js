@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.1.10:8180';
+const BASE_URL = 'http://192.168.1.3:8180';
 
 export const API_GET_FREE_SHIPPER = `${BASE_URL}/api/freeShippers`;
 

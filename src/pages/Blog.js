@@ -105,6 +105,8 @@ export default function User() {
   const [open, setOpen] = useState(false);
   const [itemProp, setItemProp] = useState({});
   const [shopName, setShopName] = useState('');
+  const[error1, setError1] = useState('');
+  const [success, setSuccess] = useState(false);
 
   async function getWorkingTerritoryAPI(id) {
     const res = await getWorkingTerritory(id);
@@ -125,10 +127,18 @@ export default function User() {
       migrationStatus: e?.migrationStatus,
       warehouseStaffID: e?.warehouseStaffID,
     }));
-    const res = await updateImportationAPI(body);
-    if (res?.status === 200) {
-      console.log(res?.data);
+
+    try {
+      const res = await updateImportationAPI(body);
+      if (res?.status === 200) {
+        console.log(res?.data);
+        setSuccess(!success);
+        setError1(res.data);
+      }
+    } catch (error) {
+      setError1(error?.response.data);
     }
+
   };
 
   const getImportation = async (body) => {
@@ -150,7 +160,7 @@ export default function User() {
       shopName,
     };
     getImportation(body);
-  }, [staffID, regionsChoose, shopName]);
+  }, [staffID, regionsChoose, shopName, success]);
 
   const handleChangeStatus = (event, id) => {
     const temp = listProduct.filter((e) => e.shopOrderID === id);
@@ -228,6 +238,7 @@ export default function User() {
             Lưu
           </Button>
         </Stack>
+        <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
         <Box style={{ marginBottom: '30px' }}>
           <Box style={{ display: 'flex' }}>
             <Box>Khu vực giao hàng</Box>

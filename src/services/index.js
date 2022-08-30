@@ -27,12 +27,8 @@ import {
 } from './config';
 
 export const registerAPI = async (body) => {
-  try {
     const response = await axios.post(API_REGISTER, body);
     return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
 };
 
 export const getWorkingTerritory = async (id) => {
@@ -55,12 +51,8 @@ export const getDeliveryResultAPI = async (body) => {
   }
 };
 export const updateDeliveryResultAPI = async (body) => {
-  try {
     const response = await axios.post(API_UPDATE_DELIVERY_RESULTS, body);
     return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
 };
 export const getImportationAPI = async (body) => {
   try {
@@ -73,12 +65,8 @@ export const getImportationAPI = async (body) => {
   }
 };
 export const updateImportationAPI = async (body) => {
-  try {
     const response = await axios.post(API_UPDATE_IMPORTATION, body);
     return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
 };
 export const getExportationAPI = async (body) => {
   try {
@@ -91,29 +79,17 @@ export const getExportationAPI = async (body) => {
   }
 };
 export const updateExportationAPI = async (body) => {
-  try {
     const response = await axios.post(API_UPDATE_EXPORTATION, body);
     return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
 };
 export const shipperAssigmentAPI = async (body) => {
-  try {
     const response = await axios.post(API_SHIPPER_ASSIGNMENT, body);
     return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
 };
 
 export const loginAPI = async (body) => {
-  try {
     const response = await axios.post(API_LOGIN, body);
     return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
 };
 
 export const getShopOrderAssignmentAPI = async (body) => {
@@ -171,16 +147,9 @@ export const getFreeShiperAPI = async (body) => {
 };
 
 export const updateDeliveryHistory = async (body) => {
-  try {
-    const response = await axios.put(API_UPDATE_DELIVERY_HISTORY, body, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+ // const response = await axios.post(API_UPDATE_UN_MANGAGED_WAREHOUSES, body);
+    const response = await axios.post(API_UPDATE_DELIVERY_HISTORY, body);
     return response;
-  } catch (error) {
-    return error?.response?.data || error;
-  }
 };
 
 export const getShopOrdersConfirming = async (body) => {

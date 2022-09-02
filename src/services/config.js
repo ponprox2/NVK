@@ -1,16 +1,16 @@
-const BASE_URL = 'http://192.168.1.3:8180';
+const BASE_URL = 'http://192.168.1.4:8180';
 
 export const API_GET_FREE_SHIPPER = `${BASE_URL}/api/freeShippers`;
 
-export const API_SHIPPER_ASSIGNMENT = `${BASE_URL}/api/shipperAssigment`;
+export const API_SHIPPER_ASSIGNMENT = `${BASE_URL}/api/shopOrderDelivery`;
 
 export const API_GET_WORKING_TERRITORY = `${BASE_URL}/api/workingTerritory`;
 
-export const API_GET_SHOP_ORDER_ASSIGNMENT = `${BASE_URL}/api/shopOrderAssignments`;
+export const API_GET_SHOP_ORDER_ASSIGNMENT = `${BASE_URL}/api/shopOrdersDelivery`;
 
 export const API_SHOP_ORDER_ASSIGNMENT_DISMISSION = `${BASE_URL}/api/assignmentDismission`;
 
-export const API_GET_SHOP_ORDER_ASSIGNMENT_CAPABILITY = `${BASE_URL}/api/assignmentCapability`;
+export const API_GET_SHOP_ORDER_ASSIGNMENT_CAPABILITY = `${BASE_URL}/api/deliveryCapability`;
 
 export const API_GET_REGION = `${BASE_URL}/api/regions`;
 
@@ -48,3 +48,6 @@ export const API_GET_MANGAGED_WAREHOUSES = `${BASE_URL}/api/managedWarehouses`;
 export const API_UPDATE_UN_MANGAGED_WAREHOUSES = `${BASE_URL}/api/unmanagedWarehouses`;
 export const API_GET_UN_MANGAGED_WAREHOUSES = `${BASE_URL}/api/unmanagedWarehouses`;
 
+export const API_GET_SHOP_ORDER_PICKUP = `${BASE_URL}/api/shopOrdersPickUp`;
+export const API_GET_PICKUP_CAPABLITY = `${BASE_URL}/api/pickUpCapability`;
+export const API_UPDATE_SHOP_ORDER_PICKUP = `${BASE_URL}/api/shopOrderPickUp`;

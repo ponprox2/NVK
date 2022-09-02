@@ -77,10 +77,11 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
             <Avatar src={account.photoURL} alt="photoURL" />
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {adminInfo.username}
+                {/* {adminInfo.username} */}
+                pham phong pon
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {adminInfo.role}
+                Nhân viên kho
               </Typography>
             </Box>
           </AccountStyle>
@@ -90,8 +91,6 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       <NavSection navConfig={navConfig} />
 
       <Box sx={{ flexGrow: 1 }} />
-
-  
     </Scrollbar>
   );
 

@@ -93,6 +93,10 @@ export default function SimpleDialog(props) {
           <Typography>deliveryStatus : </Typography>
           <Typography style={{ marginLeft: '30px' }}>{renderStatus(item?.deliveryStatus)}</Typography>
         </Box>
+        <Box style={{ display: 'flex', marginBottom: '10px' }}>
+          <Typography>Tổng tiền : </Typography>
+          <Typography style={{ marginLeft: '30px' }}>{item?.totalPrice} VND</Typography>
+        </Box>
       </Box>
     </Dialog>
   );

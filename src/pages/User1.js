@@ -37,12 +37,12 @@ import {
   getWorkingTerritory,
   getRegion,
   getDetailPackage,
-  updateDeliveryHistory,
-  getShopOrderAssignmentAPI,
-  getShopOrderDismissionAPI,
-  getShopOrderAssignmentCapabilityAPI,
+  // updateDeliveryHistory,
+  updateShopOrderPickup,
+  getPickupCapabitityAPI,
+  getShopOrderPickupAPI,
 } from '../services/index';
-import DialogApp from './Dialog';
+
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -56,7 +56,6 @@ const TABLE_HEAD = [
   { id: 'deliveryAddress', label: 'Địa chỉ vận chuyển', alignRight: false },
   { id: 'statusDescription', label: 'Trạng thái', alignRight: false },
   { id: 'GIAODON', label: 'Giao đơn', alignRight: false },
-  // { id: 'HUYDON', label: 'Huỷ giao đơn', alignRight: false },
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -113,8 +112,6 @@ export default function User() {
   const [listUser, setListUser] = useState([]);
   const [shopName, setShopName] = useState('');
   const [packageName, setPackageName] = useState('');
-  const [openToast, setOpenToast] = useState(false);
-  const [severity, setSeverity] = useState('');
 
   async function getWorkingTerritoryAPI(id) {
     const res = await getWorkingTerritory(id);
@@ -132,7 +129,7 @@ export default function User() {
   async function updateDeliveryHistoryAPI() {
     const body = listUser.map((e) => ({ shopOrderID: e?.shopOrderID, status: e?.status }));
 
-    const res = await updateDeliveryHistory(body);
+    const res = await updateShopOrderPickup(body);
     if (res?.status === 200) {
       console.log(res?.data);
     }
@@ -148,7 +145,7 @@ export default function User() {
       shopName1: shopName,
       regionID: regionsChoose,
     };
-    const res = await getShopOrderAssignmentAPI(body);
+    const res = await getShopOrderPickupAPI(body);
     if (res?.status === 200) {
       setListUser(res?.data);
     }
@@ -175,32 +172,15 @@ export default function User() {
     setSelected([]);
   };
 
-  const handleDismiss = async (id) => {
-    const body = {
-      shopOrderID: id,
-    };
-    try {
-      const res = await getShopOrderDismissionAPI(body);
-      console.log(res);
-      if (res.status === 200) {
-        getShopOrderAssignment();
-        setError1(res.data);
-      }
-    } catch (error) {
-      setError1(error?.response.data);
-    }
-  };
   const handleCapability = async (id) => {
     try {
-      const res = await getShopOrderAssignmentCapabilityAPI(id);
+      const res = await getPickupCapabitityAPI(id);
       console.log(res.data);
       if (res.data === 1) {
-        navigate(`/dashboard/orderHistory?id=${id}`);
+        navigate(`/dashboard/DetailOrderView?id=${id}`);
       }
     } catch (error) {
-      setOpenToast(true);
-      setSeverity('error');
-      setError1(error?.response?.data?.message);
+      console.log(error);
     }
   };
 
@@ -262,7 +242,7 @@ export default function User() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Giao Đơn Hàng Cho Nhân Viên Vận Chuyển
+            Giao Đơn Lấy Hàng Cho Nhân Viên
           </Typography>
           {/* <Button
             variant="contained"
@@ -332,25 +312,9 @@ export default function User() {
               onChange={(e) => setShopName(e.target.value)}
             />
           </Box>
-          {/* <Box sx={{ display: 'flex' }}>
-            <Typography>Tên món hàng</Typography>
-            <input
-              style={{
-                width: '120px',
-                height: '25px',
-                marginLeft: '145px',
-                borderRadius: '25px',
-                padding: '5px',
-              }}
-              value={packageName}
-              onChange={(e) => setPackageName(e.target.value)}
-            />
-          </Box> */}
         </Box>
         <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
         <Card>
-          {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
-
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -405,9 +369,6 @@ export default function User() {
                         <TableCell align="left">
                           <Button onClick={() => handleCapability(shopOrderID)}>Giao</Button>
                         </TableCell>
-                        {/* <TableCell align="left">
-                          <Button onClick={() => handleDismiss(shopOrderID)}>Huỷ</Button>
-                        </TableCell> */}
 
                         {/* <TableCell align="right">
                           <UserMoreMenu />
@@ -446,15 +407,6 @@ export default function User() {
           />
         </Card>
       </Container>
-      <DialogApp
-        content={error1}
-        type={0}
-        isOpen={openToast}
-        severity={severity}
-        callback={() => {
-          setOpenToast(false);
-        }}
-      />
     </Page>
   );
 }

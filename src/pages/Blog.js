@@ -34,6 +34,7 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashbo
 import SimpleDialog from './DetailOrderView';
 import DateRangePicker from './chooseTimeRangePicker';
 import { getWorkingTerritory, getRegion, getImportationAPI, updateImportationAPI } from '../services/index';
+import DialogApp from './Dialog';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -105,8 +106,10 @@ export default function User() {
   const [open, setOpen] = useState(false);
   const [itemProp, setItemProp] = useState({});
   const [shopName, setShopName] = useState('');
-  const[error1, setError1] = useState('');
+  const [error1, setError1] = useState('');
   const [success, setSuccess] = useState(false);
+  const [openToast, setOpenToast] = useState(false);
+  const [severity, setSeverity] = useState('');
 
   async function getWorkingTerritoryAPI(id) {
     const res = await getWorkingTerritory(id);
@@ -124,21 +127,23 @@ export default function User() {
   const updateImportation = async () => {
     const body = listProduct.map((e) => ({
       shopOrderID: e?.shopOrderID,
-      migrationStatus: e?.migrationStatus,
+      confirmation: e?.confirmation,
       warehouseStaffID: e?.warehouseStaffID,
     }));
 
     try {
       const res = await updateImportationAPI(body);
       if (res?.status === 200) {
-        console.log(res?.data);
-        setSuccess(!success);
+        setOpenToast(true);
+        setSeverity('success');
         setError1(res.data);
+        setSuccess(!success);
       }
     } catch (error) {
-      setError1(error?.response.data);
+      setOpenToast(true);
+      setSeverity('error');
+      setError1(error?.response?.data?.message);
     }
-
   };
 
   const getImportation = async (body) => {
@@ -220,6 +225,23 @@ export default function User() {
   // const handleChangeStatus = (event) => {
   //   // const temp1 =
   // }
+  const handleClickStatus = (confirmation, id) => {
+    const temp = listProduct.filter((e) => e.shopOrderID === id);
+    const tempArr = listProduct.filter((e) => e.shopOrderID !== id);
+    let temp1 = [];
+
+    if (confirmation === '0') {
+      temp[0].confirmation = '1';
+    }
+    if (confirmation === '1') {
+      temp[0].confirmation = '0';
+    }
+    temp1 = temp;
+    console.log(temp1[0]?.confirmation);
+    const temp2 = [...temp1, ...tempArr];
+    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
+    setListProduct(temp2);
+  };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listProduct.length) : 0;
 
@@ -232,13 +254,13 @@ export default function User() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Nhập Hàng Vào Kho
+            Nhập Hàng Vào Kho
           </Typography>
           <Button variant="contained" onClick={updateImportation}>
             Lưu
           </Button>
         </Stack>
-        <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
+
         <Box style={{ marginBottom: '30px' }}>
           <Box style={{ display: 'flex' }}>
             <Box>Khu vực giao hàng</Box>
@@ -303,6 +325,7 @@ export default function User() {
                       registerDate,
                       migrationStatus,
                       deliveryAddress,
+                      confirmation,
                     } = row;
 
                     const isItemSelected = selected.indexOf(shopName) !== -1;
@@ -315,24 +338,76 @@ export default function User() {
                         role="checkbox"
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
-                        onClick={() => {
-                          setItemProp(row);
-                          setOpen(true);
-                        }}
                       >
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
                         </TableCell>
 
-                        <TableCell align="left">{shopOrderID}</TableCell>
-                        <TableCell align="left">{shopName}</TableCell>
-                        <TableCell align="left">{shopkeeperName}</TableCell>
-                        <TableCell align="left">{shopAddress}</TableCell>
-                        <TableCell align="left">{shopPhone}</TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {shopOrderID}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {shopName}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {shopkeeperName}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {shopAddress}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {shopPhone}
+                        </TableCell>
 
-                        <TableCell align="left">{registerDate}</TableCell>
-                        <TableCell align="left">{deliveryAddress}</TableCell>
-                        <FormControl style={{ marginTop: '10px' }}>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {registerDate}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {deliveryAddress}
+                        </TableCell>
+                        {/* <FormControl style={{ marginTop: '10px' }}>
                           <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
@@ -343,7 +418,14 @@ export default function User() {
                             <MenuItem value={0}>Chưa nhập</MenuItem>
                             <MenuItem value={1}>Nhập hàng</MenuItem>
                           </Select>
-                        </FormControl>
+                        </FormControl> */}
+                        <Button
+                          sx={{ marginTop: '20px' }}
+                          variant={confirmation === '0' ? 'outlined' : 'contained'}
+                          onClick={() => handleClickStatus(confirmation, shopOrderID)}
+                        >
+                          {confirmation === '0' ? 'Chưa nhập' : 'Nhập hàng'}
+                        </Button>
                       </TableRow>
                     );
                   })}
@@ -379,6 +461,15 @@ export default function User() {
         </Card>
       </Container>
       <SimpleDialog open={open} itemProp={itemProp} onClose={() => setOpen(false)} />
+      <DialogApp
+        content={error1}
+        type={0}
+        isOpen={openToast}
+        severity={severity}
+        callback={() => {
+          setOpenToast(false);
+        }}
+      />
     </Page>
   );
 }

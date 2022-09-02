@@ -22,8 +22,13 @@ const navConfig = [
     //  icon: getIcon('eva:alert-triangle-fill'),
   },
   {
-    title: 'Giao Đơn Hàng Cho Nhân Viên Vận Chuyển',
+    title: 'Giao Đơn Hàng ',
     path: '/dashboard/user',
+    //  icon: getIcon('eva:people-fill'),
+  },
+  {
+    title: 'Giao đơn lấy hàng  ',
+    path: '/dashboard/user1',
     //  icon: getIcon('eva:people-fill'),
   },
   {

@@ -34,6 +34,7 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashbo
 import SimpleDialog from './DetailOrderView';
 import DateRangePicker from './chooseTimeRangePicker';
 import { getWorkingTerritory, getRegion, updateDeliveryHistory, getShopOrdersConfirming } from '../services/index';
+import DialogApp from './Dialog';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -42,7 +43,7 @@ const TABLE_HEAD = [
   { id: 'shopkeeperName', label: 'Chủ cửa hàng', alignRight: false },
   { id: 'shopAddress', label: 'Địa chỉ giao', alignRight: false },
   { id: 'shopPhone', label: 'SĐT cửa hàng', alignRight: false },
-  { id: 'registerDate', label: 'Ngày gửi đơn', alignRight: false },
+  // { id: 'registerDate', label: 'Ngày gửi đơn', alignRight: false },
   { id: 'status', label: 'Trạng thái', alignRight: false },
 ];
 // const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate } = row;
@@ -104,6 +105,9 @@ export default function User() {
   const [open, setOpen] = useState(false);
   const [itemProp, setItemProp] = useState({});
   const [error1, setError1] = useState('');
+  const [reCall, setReCall] = useState(false);
+  const [openToast, setOpenToast] = useState(false);
+  const [severity, setSeverity] = useState('');
 
   async function getWorkingTerritoryAPI(id) {
     const res = await getWorkingTerritory(id);
@@ -121,19 +125,24 @@ export default function User() {
   const updateDeliveryHistoryAPI = async () => {
     const body = listProduct.map((e) => ({
       shopOrderID: e?.shopOrderID,
-      status: e?.status,
+      confirmation: e?.confirmation,
       warehouseStaffID: e?.warehouseStaffID,
     }));
 
     try {
       const res = await updateDeliveryHistory(body);
       if (res?.status === 200) {
+        setOpenToast(true);
+        setSeverity('success');
         setError1(res.data);
+        setReCall(!reCall);
       }
     } catch (error) {
-      setError1(error?.response.data);
+      setOpenToast(true);
+      setSeverity('error');
+ 
+      setError1(error?.response?.data?.message);
     }
-
   };
 
   const getShopOrdersConfirmingAPI = async (body) => {
@@ -148,6 +157,7 @@ export default function User() {
   useEffect(() => {
     getWorkingTerritoryAPI(staffID);
   }, []);
+
   useEffect(() => {
     const body = {
       staffID1: staffID,
@@ -155,7 +165,7 @@ export default function User() {
       status: statusAllChoose,
     };
     getShopOrdersConfirmingAPI(body);
-  }, [staffID, regionsChoose, statusAllChoose]);
+  }, [staffID, regionsChoose, statusAllChoose, reCall]);
 
   const handleChangeStatus = (event, id) => {
     const temp = listProduct.filter((e) => e.shopOrderID === id);
@@ -213,9 +223,23 @@ export default function User() {
     setFilterName(event.target.value);
   };
 
-  // const handleChangeStatus = (event) => {
-  //   // const temp1 =
-  // }
+  const handleClickStatus = (confirmation, id) => {
+    const temp = listProduct.filter((e) => e.shopOrderID === id);
+    const tempArr = listProduct.filter((e) => e.shopOrderID !== id);
+    let temp1 = [];
+
+    if (confirmation === '0') {
+      temp[0].confirmation = '1';
+    }
+    if (confirmation === '1') {
+      temp[0].confirmation = '0';
+    }
+    temp1 = temp;
+    console.log(temp1[0]?.confirmation);
+    const temp2 = [...temp1, ...tempArr];
+    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
+    setListProduct(temp2);
+  };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listProduct.length) : 0;
 
@@ -234,7 +258,7 @@ export default function User() {
             Lưu
           </Button>
         </Stack>
-        <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
+        {/* <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography> */}
         <Box style={{ marginBottom: '30px' }}>
           <Box style={{ display: 'flex' }}>
             <Box>Khu vực giao hàng</Box>
@@ -293,7 +317,16 @@ export default function User() {
 
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate, status } = row;
+                    const {
+                      shopOrderID,
+                      shopName,
+                      shopkeeperName,
+                      shopAddress,
+                      shopPhone,
+                      registerDate,
+                      status,
+                      confirmation,
+                    } = row;
 
                     const isItemSelected = selected.indexOf(shopName) !== -1;
 
@@ -305,23 +338,59 @@ export default function User() {
                         role="checkbox"
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
-                        onClick={() => {
-                          setItemProp(row);
-                          setOpen(true);
-                        }}
                       >
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
                         </TableCell>
 
-                        <TableCell align="left">{shopOrderID}</TableCell>
-                        <TableCell align="left">{shopName}</TableCell>
-                        <TableCell align="left">{shopkeeperName}</TableCell>
-                        <TableCell align="left">{shopAddress}</TableCell>
-                        <TableCell align="left">{shopPhone}</TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {shopOrderID}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {shopName}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {shopkeeperName}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          style={{ maxWidth: '200px' }}
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {shopAddress}
+                        </TableCell>
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
+                          {shopPhone}
+                        </TableCell>
 
-                        <TableCell align="left">{registerDate}</TableCell>
-                        <FormControl style={{ marginTop: '10px' }}>
+                        {/* <FormControl style={{ marginTop: '10px' }}>
                           <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
@@ -330,10 +399,16 @@ export default function User() {
                             onChange={(e) => handleChangeStatus(e?.target?.value, shopOrderID)}
                           >
                             <MenuItem value={1}>Chưa xác nhận</MenuItem>
-                            <MenuItem value={2}>Đã xác nhận</MenuItem>
-                            <MenuItem value={3}>Chờ thu gom</MenuItem>
+                            <MenuItem value={2}>Xác nhận</MenuItem>
                           </Select>
-                        </FormControl>
+                        </FormControl> */}
+                        <Button
+                          sx={{ marginTop: '20px' }}
+                          variant={confirmation === '0' ? 'outlined' : 'contained'}
+                          onClick={() => handleClickStatus(confirmation, shopOrderID)}
+                        >
+                          {confirmation === '0' ? 'Chưa xác nhận' : 'Xác nhận'}
+                        </Button>
                       </TableRow>
                     );
                   })}
@@ -369,6 +444,15 @@ export default function User() {
         </Card>
       </Container>
       <SimpleDialog open={open} itemProp={itemProp} onClose={() => setOpen(false)} />
+      <DialogApp
+        content={error1}
+        type={0}
+        isOpen={openToast}
+        severity={severity}
+        callback={() => {
+          setOpenToast(false);
+        }}
+      />
     </Page>
   );
 }

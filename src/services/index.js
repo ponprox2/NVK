@@ -24,11 +24,14 @@ import {
   API_GET_MANGAGED_WAREHOUSES,
   API_GET_UN_MANGAGED_WAREHOUSES,
   API_UPDATE_UN_MANGAGED_WAREHOUSES,
+  API_GET_SHOP_ORDER_PICKUP,
+  API_GET_PICKUP_CAPABLITY,
+  API_UPDATE_SHOP_ORDER_PICKUP,
 } from './config';
 
 export const registerAPI = async (body) => {
-    const response = await axios.post(API_REGISTER, body);
-    return response;
+  const response = await axios.post(API_REGISTER, body);
+  return response;
 };
 
 export const getWorkingTerritory = async (id) => {
@@ -51,8 +54,8 @@ export const getDeliveryResultAPI = async (body) => {
   }
 };
 export const updateDeliveryResultAPI = async (body) => {
-    const response = await axios.post(API_UPDATE_DELIVERY_RESULTS, body);
-    return response;
+  const response = await axios.post(API_UPDATE_DELIVERY_RESULTS, body);
+  return response;
 };
 export const getImportationAPI = async (body) => {
   try {
@@ -65,8 +68,8 @@ export const getImportationAPI = async (body) => {
   }
 };
 export const updateImportationAPI = async (body) => {
-    const response = await axios.post(API_UPDATE_IMPORTATION, body);
-    return response;
+  const response = await axios.post(API_UPDATE_IMPORTATION, body);
+  return response;
 };
 export const getExportationAPI = async (body) => {
   try {
@@ -79,17 +82,17 @@ export const getExportationAPI = async (body) => {
   }
 };
 export const updateExportationAPI = async (body) => {
-    const response = await axios.post(API_UPDATE_EXPORTATION, body);
-    return response;
+  const response = await axios.post(API_UPDATE_EXPORTATION, body);
+  return response;
 };
 export const shipperAssigmentAPI = async (body) => {
-    const response = await axios.post(API_SHIPPER_ASSIGNMENT, body);
-    return response;
+  const response = await axios.post(API_SHIPPER_ASSIGNMENT, body);
+  return response;
 };
 
 export const loginAPI = async (body) => {
-    const response = await axios.post(API_LOGIN, body);
-    return response;
+  const response = await axios.post(API_LOGIN, body);
+  return response;
 };
 
 export const getShopOrderAssignmentAPI = async (body) => {
@@ -147,9 +150,9 @@ export const getFreeShiperAPI = async (body) => {
 };
 
 export const updateDeliveryHistory = async (body) => {
- // const response = await axios.post(API_UPDATE_UN_MANGAGED_WAREHOUSES, body);
-    const response = await axios.post(API_UPDATE_DELIVERY_HISTORY, body);
-    return response;
+  // const response = await axios.post(API_UPDATE_UN_MANGAGED_WAREHOUSES, body);
+  const response = await axios.post(API_UPDATE_DELIVERY_HISTORY, body);
+  return response;
 };
 
 export const getShopOrdersConfirming = async (body) => {
@@ -212,6 +215,35 @@ export const getMangagedWarehouseAPI = async (id) => {
 export const updateUnMangagedWarehouseAPI = async (body) => {
   try {
     const response = await axios.post(API_UPDATE_UN_MANGAGED_WAREHOUSES, body);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const getShopOrderPickupAPI = async (body) => {
+  try {
+    const response = await axios.get(
+      `${API_GET_SHOP_ORDER_PICKUP}?staffID=${body?.staffID}&shopName=${body?.shopName1}&regionID=${body?.regionID}`
+    );
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const getPickupCapabitityAPI = async (shopOrderID) => {
+  try {
+    const response = await axios.get(`${API_GET_PICKUP_CAPABLITY}?shopOrderID=${shopOrderID}`);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const updateShopOrderPickup = async (body) => {
+  try {
+    const response = await axios.post(API_UPDATE_SHOP_ORDER_PICKUP, body);
     return response;
   } catch (error) {
     return error?.response?.data || error;

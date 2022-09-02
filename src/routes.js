@@ -5,6 +5,7 @@ import LogoOnlyLayout from './layouts/LogoOnlyLayout';
 //
 import Blog from './pages/Blog';
 import User from './pages/User';
+import User1 from './pages/User1';
 import Login from './pages/Login';
 import NotFound from './pages/Page404';
 import Register from './pages/Register';
@@ -12,6 +13,7 @@ import Products from './pages/Products';
 import DashboardApp from './pages/DashboardApp';
 import AddProduct from './pages/addProduct';
 import DetailOrder from './pages/detailOrder';
+import DetailOrderView1 from './pages/DetailOrderView1';
 import UpdProduct from './pages/updateProduct';
 import Exportation from './pages/Exportation';
 import ConfirmOrder from './pages/ConfirmOrder';
@@ -27,6 +29,7 @@ export default function Router() {
       children: [
         { path: 'app', element: <DashboardApp /> },
         { path: 'user', element: <User /> },
+        { path: 'user1', element: <User1 /> },
         { path: 'products', element: <Products /> },
         { path: 'order', element: <Blog /> },
         // { path: 'login', element: <Login /> },
@@ -34,6 +37,7 @@ export default function Router() {
         { path: 'register', element: <Register /> },
         { path: 'updateProduct/', element: <UpdProduct /> },
         { path: 'orderDetail/', element: <DetailOrder /> },
+        { path: 'DetailOrderView/', element: <DetailOrderView1 /> },
         { path: 'orderHistory/', element: <DetailOrder /> },
         { path: 'Exportation/', element: <Exportation /> },
         { path: 'confirmOrder/', element: <ConfirmOrder /> },

@@ -19,7 +19,7 @@ const MENU_OPTIONS = [
   {
     label: 'Profile',
     icon: 'eva:person-fill',
-    linkTo: '#',
+    linkTo: '/dashboard/staffInfo',
   },
   // {
   //   label: 'Settings',
@@ -44,8 +44,12 @@ export default function AccountPopover() {
   };
   const handleLogOut = ()=>{
     localStorage.setItem('adminInfo', JSON.stringify(''));
+    localStorage.removeItem('accountData');
     navigate("/login")
   }
+
+  const account = JSON.parse(localStorage.getItem("accountData") || "[]");
+
   return (
     <>
       <IconButton
@@ -85,10 +89,10 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+          ID : {account.staffID}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
+          {account.name}
           </Typography>
         </Box>
 

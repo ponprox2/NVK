@@ -41,20 +41,19 @@ import {
   updateShopOrderPickup,
   getPickupCapabitityAPI,
   getShopOrderPickupAPI,
+  getTerritoryAPI2,
 } from '../services/index';
+import SimpleDialog from './DetailOrderView';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
   { id: 'shopName', label: 'Tên cửa hàng', alignRight: false },
-  { id: 'shopkeeperName', label: 'Chủ cửa hàng', alignRight: false },
-  { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
-  { id: 'shopPhone', label: 'SĐT cửa hàng', alignRight: false },
-  { id: 'registerDate', label: 'Ngày gửi đơn hàng', alignRight: false },
   { id: 'packageName', label: 'Tên món hàng', alignRight: false },
-  { id: 'deliveryAddress', label: 'Địa chỉ vận chuyển', alignRight: false },
-  { id: 'statusDescription', label: 'Trạng thái', alignRight: false },
+  { id: 'registerDate', label: 'Ngày gửi đơn', alignRight: false },
+  { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
+  { id: 'statusDescription', label: 'Trạng thái đơn hàng', alignRight: false },
   { id: 'GIAODON', label: 'Giao đơn', alignRight: false },
 ];
 
@@ -112,6 +111,28 @@ export default function User() {
   const [listUser, setListUser] = useState([]);
   const [shopName, setShopName] = useState('');
   const [packageName, setPackageName] = useState('');
+  const [open, setOpen] = useState(false);
+  const [itemProp, setItemProp] = useState({});
+
+  const [deliveryTerritories, setDeliveryTerritories] = useState([]);
+  const [territoryID, setTerritoryID] = useState(0);
+  const [orderID, setOrderID] = useState('');
+
+  async function getTerritoriesAPI() {
+    const res = await getTerritoryAPI2();
+    if (res?.status === 200) {
+      setDeliveryTerritories(res?.data);
+    }
+  }
+
+  useEffect(() => {
+    getTerritoriesAPI();
+  }, []);
+
+  useEffect(() => {
+    getRegionAPI(territoryID);
+  }, [territoryID]);
+
 
   async function getWorkingTerritoryAPI(id) {
     const res = await getWorkingTerritory(id);
@@ -121,7 +142,7 @@ export default function User() {
     }
   }
   async function getRegionAPI(id) {
-    const res = await getRegion(id?.territoryID);
+    const res = await getRegion(id);
     if (res?.status === 200) {
       setRegions(res?.data);
     }
@@ -143,7 +164,9 @@ export default function User() {
       staffID: staffID1,
       packageName1: packageName,
       shopName1: shopName,
+      territoryID,
       regionID: regionsChoose,
+      shopOrderID: orderID,
     };
     const res = await getShopOrderPickupAPI(body);
     if (res?.status === 200) {
@@ -152,10 +175,10 @@ export default function User() {
   }
   useEffect(() => {
     getShopOrderAssignment();
-  }, [shopName, regionsChoose, packageName]);
-  useEffect(() => {
-    getWorkingTerritoryAPI(staffID1);
-  }, []);
+  }, [shopName,territoryID, regionsChoose, packageName, orderID]);
+  // useEffect(() => {
+  //   getWorkingTerritoryAPI(staffID1);
+  // }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -177,7 +200,7 @@ export default function User() {
       const res = await getPickupCapabitityAPI(id);
       console.log(res.data);
       if (res.data === 1) {
-        navigate(`/dashboard/DetailOrderView?id=${id}`);
+        navigate(`/dashboard/freePickUpShippers?id=${id}`);
       }
     } catch (error) {
       console.log(error);
@@ -238,7 +261,7 @@ export default function User() {
   const isUserNotFound = filteredUsers.length === 0;
 
   return (
-    <Page title="User">
+    <Page title="Giao Đơn Lấy Hàng">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
@@ -254,15 +277,55 @@ export default function User() {
             Lưu
           </Button> */}
         </Stack>
+        <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
+            <Box style={{ marginTop: '10px' }}>Tên cửa hàng</Box>
+            <input
+              style={{
+                width: '120px',
+                height: '25px',
+                marginLeft: '72px',
+                borderRadius: '25px',
+                padding: '5px',
+              }}
+              value={shopName}
+              onChange={(e) => setShopName(e.target.value)}
+            />
 
-        <Box>
-          <Box style={{ display: 'flex' }}>
-            <Box>Khu vực giao hàng</Box>
-            <Box style={{ marginLeft: '117px' }}>{Addresses?.description} </Box>
+            <Box style={{ marginTop: '10px', marginLeft: '90px' }}>Mã đơn hàng</Box>
+            <input
+              style={{
+                width: '120px',
+                height: '25px',
+                marginLeft: '85px',
+                borderRadius: '25px',
+                padding: '5px',
+              }}
+              value={orderID}
+              onChange={(e) => setOrderID(e.target.value)}
+            />
           </Box>
-          <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Phường/xã giao hàng</Box>
-            <FormControl style={{ marginTop: '10px', marginLeft: '95px' }}>
+
+        <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
+            
+            <Box style={{ marginTop: '10px'}}>Khu vực lấy hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '45px' }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                style={{ height: '30px' }}
+                value={territoryID}
+                onChange={(e) => {
+                  console.log(e);
+                  setTerritoryID(e?.target?.value);
+                }}
+              >
+                {deliveryTerritories?.map((e) => (
+                  <MenuItem value={e?.territoryID}>{e?.description}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Box style={{ marginTop: '10px', marginLeft: '113px' }}>Phường/xã lấy hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '35px' }}>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -273,46 +336,9 @@ export default function User() {
                 {regions?.map((e) => (
                   <MenuItem value={e?.regionID}>{e?.description}</MenuItem>
                 ))}
-                {/* <MenuItem value={0}>Chưa giao</MenuItem>
-                <MenuItem value={1}>Giao thành công</MenuItem>
-                <MenuItem value={2}>Giao thất bại</MenuItem> */}
               </Select>
             </FormControl>
           </Box>
-          {/* <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Trạng thái xác nhận: </Box>
-            <FormControl style={{ marginTop: '10px', marginLeft: '50px' }}>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={statusAllChoose}
-                style={{ height: '30px' }}
-                onChange={(e) => handleChangeDeliveryStatus(e)}
-              >
-                <MenuItem value={0}>Tất Cả</MenuItem>
-                <MenuItem value={1}>Chưa xác nhận</MenuItem>
-                <MenuItem value={2}>Đã xác nhận</MenuItem>
-                <MenuItem value={3}>Chờ thu gom</MenuItem>
-              </Select>
-            </FormControl>
-          </Box> */}
-        </Box>
-        <Box style={{ marginBottom: '30px' }}>
-          <Box sx={{ display: 'flex', marginBottom: '15px', alignItems: 'center', height: '56px' }}>
-            <Typography textAlign="center">Tên cửa hàng</Typography>
-            <input
-              style={{
-                width: '120px',
-                height: '25px',
-                marginLeft: '148px',
-                borderRadius: '25px',
-                padding: '5px',
-              }}
-              value={shopName}
-              onChange={(e) => setShopName(e.target.value)}
-            />
-          </Box>
-        </Box>
         <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
         <Card>
           <Scrollbar>
@@ -334,11 +360,25 @@ export default function User() {
                       shopName,
                       shopkeeperName,
                       shopAddress,
-                      packageName,
+                      shopEmail,
                       shopPhone,
                       registerDate,
+                      packageName,
+                      quantity,
+                      mass,
+                      unitPrice,
+                      shippingFee,
+                      totalPrice,
                       deliveryAddress,
+                      shippingFeePayment,
+                      fullPayment,
+                      consigneeName,
+                      consigneePhone,
+                      consignneNote,
+                      status,
+                      warehouseStaffID,
                       statusDescription,
+                      confirmation,
                     } = row;
 
                     const isItemSelected = selected.indexOf(shopOrderID) !== -1;
@@ -355,17 +395,30 @@ export default function User() {
                         <TableCell padding="checkbox">
                           {/* <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} /> */}
                         </TableCell>
-
-                        <TableCell align="left">{shopOrderID}</TableCell>
-                        <TableCell align="left">{shopName}</TableCell>
-                        <TableCell align="left">{shopkeeperName}</TableCell>
-                        <TableCell align="left">{shopAddress}</TableCell>
-
-                        <TableCell align="left">{shopPhone}</TableCell>
-                        <TableCell align="left">{registerDate}</TableCell>
-                        <TableCell align="left">{packageName}</TableCell>
-                        <TableCell align="left">{deliveryAddress}</TableCell>
-                        <TableCell align="left">{statusDescription}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{shopOrderID}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{shopName}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{packageName}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{registerDate}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{shopAddress}</TableCell>
+                        <TableCell align="left" onClick={() => {
+                          setItemProp(row);
+                          setOpen(true);
+                        }}>{statusDescription}</TableCell>
                         <TableCell align="left">
                           <Button onClick={() => handleCapability(shopOrderID)}>Giao</Button>
                         </TableCell>
@@ -407,6 +460,7 @@ export default function User() {
           />
         </Card>
       </Container>
+      <SimpleDialog open={open} itemProp={itemProp} onClose={() => setOpen(false)} />
     </Page>
   );
 }

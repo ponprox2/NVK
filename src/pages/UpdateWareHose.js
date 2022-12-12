@@ -137,9 +137,9 @@ export default function UpdateWareHose() {
     }
   };
 
-  useEffect(() => {
-    getWorkingTerritoryAPI(staffID);
-  }, []);
+  // useEffect(() => {
+  //   getWorkingTerritoryAPI(staffID);
+  // }, []);
   useEffect(() => {
     getMangagedWarehouse(staffID);
   }, [staffID]);

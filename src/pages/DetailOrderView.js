@@ -1,39 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import ListItemText from '@mui/material/ListItemText';
+import * as React from 'react';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import { Box } from '@mui/material';
 
 import Typography from '@mui/material/Typography';
-import { blue } from '@mui/material/colors';
-import { getDetailPackageAPI } from '../services/index';
 
 export default function SimpleDialog(props) {
   const { onClose, selectedValue, open, itemProp } = props;
-  const [item, setItem] = useState({});
-
-  const getDetailPackage = async () => {
-    const body = {
-      shopOrderID: itemProp.shopOrderID,
-      isDetail: true,
-    };
-    try {
-      const res = await getDetailPackageAPI(body);
-      setItem(res?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getDetailPackage();
-  }, [open]);
 
   const handleClose = () => {
     onClose(selectedValue);
@@ -43,60 +16,158 @@ export default function SimpleDialog(props) {
     onClose(value);
   };
 
-  const renderStatus = (status) => {
+  const renderPaymentStatus = (status) => {
     switch (status) {
-      case 1: {
-        return 'Chưa xác nhận';
+      case '0': {
+        return 'Chưa thanh toán';
       }
-      case 2: {
-        return 'Đã xác nhận';
+      case '1': {
+        return 'Đã thanh toán';
       }
       default:
-        return 'Chờ thu gom';
+        return 'ERROR!!!';
     }
   };
 
   return (
     <Dialog onClose={handleClose} open={open}>
-      <DialogTitle>Chi tiết đơn hàng</DialogTitle>
+      <DialogTitle>CHI TIẾT ĐƠN HÀNG</DialogTitle>
 
       <Box style={{ padding: '20px' }}>
-        <Box style={{ display: 'flex', marginBottom: '10px' }}>
-          <Typography>shopOrderID : </Typography>
-          <Typography style={{ marginLeft: '50px' }}>{item?.shopOrderID}</Typography>
-        </Box>
-        <Box style={{ display: 'flex', marginBottom: '10px' }}>
-          <Typography>shopName : </Typography>
-          <Typography style={{ marginLeft: '60px' }}>{item?.shopName}</Typography>
-        </Box>
-        <Box style={{ display: 'flex', marginBottom: '10px' }}>
-          <Typography>packageName : </Typography>
-          <Typography style={{ marginLeft: '33px' }}>{item?.packageName}</Typography>
-        </Box>
-        <Box style={{ display: 'flex', marginBottom: '10px' }}>
-          <Typography>deliveryAddress : </Typography>
-          <Typography style={{ marginLeft: '20px' }}>{item?.deliveryAddress}</Typography>
-        </Box>
-        <Box style={{ display: 'flex', marginBottom: '10px' }}>
-          <Typography>consigneeName : </Typography>
-          <Typography style={{ marginLeft: '20px' }}>{item?.consigneeName}</Typography>
-        </Box>
-        <Box style={{ display: 'flex', marginBottom: '10px' }}>
-          <Typography>consigneePhone : </Typography>
-          <Typography style={{ marginLeft: '20px' }}>{item?.consigneePhone}</Typography>
-        </Box>
-        <Box style={{ display: 'flex', marginBottom: '10px' }}>
-          <Typography>consignneNote : </Typography>
-          <Typography style={{ marginLeft: '30px' }}>{item?.consignneNote}</Typography>
-        </Box>
-        <Box style={{ display: 'flex', marginBottom: '10px' }}>
-          <Typography>deliveryStatus : </Typography>
-          <Typography style={{ marginLeft: '30px' }}>{renderStatus(item?.deliveryStatus)}</Typography>
-        </Box>
-        <Box style={{ display: 'flex', marginBottom: '10px' }}>
-          <Typography>Tổng tiền : </Typography>
-          <Typography style={{ marginLeft: '30px' }}>{item?.totalPrice} VND</Typography>
-        </Box>
+        {
+          itemProp?.shopOrderID !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Mã đơn hàng</Typography>
+            <Typography style={{ marginLeft: '60px' }}>{itemProp?.shopOrderID}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.shopName !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Tên cửa hàng</Typography>
+            <Typography style={{ marginLeft: '57px' }}>{itemProp?.shopName}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.shopKeeperName !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Chủ cửa hàng</Typography>
+            <Typography style={{ marginLeft: '55px' }}>{itemProp?.shopKeeperName}</Typography>
+          </Box>
+
+        }
+        {
+          itemProp?.shopAddress !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Địa chỉ cửa hàng</Typography>
+            <Typography style={{ marginLeft: '80px' }}>{itemProp?.shopAddress}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.shopPhone !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>SĐT cửa hàng</Typography>
+            <Typography style={{ marginLeft: '54px' }}>{itemProp?.shopPhone}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.shopEmail !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Email cửa hàng</Typography>
+            <Typography style={{ marginLeft: '44px' }}>{itemProp?.shopEmail}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.packageName !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Tên món hàng</Typography>
+            <Typography style={{ marginLeft: '81px' }}>{itemProp?.packageName}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.registerDate !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Ngày gửi đơn</Typography>
+            <Typography style={{ marginLeft: '60px' }}>{itemProp?.registerDate}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.mass !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Khối lượng</Typography>
+            <Typography style={{ marginLeft: '75px' }}>{itemProp?.mass} Kg</Typography>
+          </Box>
+        }
+        {
+          itemProp?.quantity !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Số lượng</Typography>
+            <Typography style={{ marginLeft: '89px' }}>{itemProp?.quantity}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.unitPrice !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Đơn giá sản phẩm</Typography>
+            <Typography style={{ marginLeft: '25px' }}>{itemProp?.unitPrice} ₫</Typography>
+          </Box>
+        }
+        {
+          itemProp?.shippingFee !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Phí vận chuyển</Typography>
+            <Typography style={{ marginLeft: '47px' }}>{itemProp?.shippingFee} ₫</Typography>
+          </Box>
+        }
+        {
+          itemProp?.totalPrice !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Tổng tiền</Typography>
+            <Typography style={{ marginLeft: '89px' }}>{itemProp?.totalPrice} ₫</Typography>
+          </Box>
+        }
+        {
+          itemProp?.consigneeName !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Người nhận</Typography>
+            <Typography style={{ marginLeft: '72px' }}>{itemProp?.consigneeName}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.consigneePhone !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>SĐT người nhận</Typography>
+            <Typography style={{ marginLeft: '39px' }}>{itemProp?.consigneePhone}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.consignneNote !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Ghi chú</Typography>
+            <Typography style={{ marginLeft: '128px' }}>{itemProp?.consignneNote}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.deliveryAddress !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Địa chỉ giao</Typography>
+            <Typography style={{ marginLeft: '74px' }}>{itemProp?.deliveryAddress}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.shippingFeePayment !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Thanh toán phí vận chuyển</Typography>
+            <Typography style={{ marginLeft: '30px' }}>{renderPaymentStatus(itemProp?.shippingFeePayment)}</Typography>
+          </Box>
+        }
+        {
+          itemProp?.fullPayment !== undefined &&
+          <Box style={{ display: 'flex', marginBottom: '10px' }}>
+            <Typography style={{ fontWeight: 600 }}>Thanh toán toàn bộ đơn</Typography>
+            <Typography style={{ marginLeft: '53px' }}>{renderPaymentStatus(itemProp?.fullPayment)}</Typography>
+          </Box>
+        }
       </Box>
     </Dialog>
   );

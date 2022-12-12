@@ -7,7 +7,8 @@ import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormContr
 import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
 import Iconify from '../../../components/Iconify';
-import { loginAPI } from '../../../services/index';
+import { loginAPI, staffInfoAPI } from '../../../services/index';
+import DialogApp from '../../../pages/Dialog';
 
 // ----------------------------------------------------------------------
 
@@ -17,6 +18,19 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const[error1, setError1] = useState('');
+  const [reCall, setReCall] = useState(false);
+  const [openToast, setOpenToast] = useState(false);
+  const [severity, setSeverity] = useState('');
+
+  const setLocalAccountData = async () => {
+    const body = {
+      staffID: userName,
+    };
+    const res = await staffInfoAPI(body);
+    res.data.photoURL = '/static/mock-images/avatars/avatar_default.png';
+    
+    localStorage.setItem("accountData", JSON.stringify(res?.data));
+  }
 
   const LoginSchema = Yup.object().shape({
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
@@ -48,15 +62,19 @@ export default function LoginForm() {
       const res = await loginAPI(body);
       if (res?.status === 200) {
         localStorage.setItem('staffID', userName);
-        navigate('/dashboard/products');
+
+        await setLocalAccountData();
+        navigate('/dashboard/shopOrdersConfirming');
       }
     } catch (error) {
-      setError1(error?.response.data);
+      setOpenToast(true);
+      setSeverity('error');
+      setError1(error?.response?.data); 
     }
   };
   return (
     <FormikProvider value={formik}>
-       <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
+       {/* <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography> */}
       <Form autoComplete="off" noValidate>
         <Stack spacing={3}>
           <TextField fullWidth autoComplete="username" onChange={(e) => setUserName(e.target.value)} />
@@ -100,6 +118,15 @@ export default function LoginForm() {
           Login
         </LoadingButton>
       </Form>
+      <DialogApp
+        content={error1}
+        type={0}
+        isOpen={openToast}
+        severity={severity}
+        callback={() => {
+          setOpenToast(false);
+        }}
+      />
     </FormikProvider>
   );
 }

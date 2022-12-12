@@ -33,7 +33,7 @@ import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 import SimpleDialog from './DetailOrderView';
 import DateRangePicker from './chooseTimeRangePicker';
-import { getWorkingTerritory, getRegion, getImportationAPI, updateImportationAPI, getTerritoryAPI2 } from '../services/index';
+import { getWorkingTerritory, getRegion, getReturnResults, updateReturnResult, getTerritoryAPI2 } from '../services/index';
 import DialogApp from './Dialog';
 import ConfirmDlg from './ConfirmDlg';
 // ----------------------------------------------------------------------
@@ -44,11 +44,9 @@ const TABLE_HEAD = [
   { id: 'packageName', label: 'Tên món hàng', alignRight: false },
   { id: 'registerDate', label: 'Ngày gửi đơn', alignRight: false },
   { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
-  { id: 'deliveryAddress', label: 'Địa chỉ giao', alignRight: false },
   { id: 'statusDescription', label: 'Trạng thái đơn hàng', alignRight: false },
-  { id: 'migrationStatus', label: 'Lưu kho', alignRight: false },
+  { id: 'confirmation', label: 'Xác nhận', alignRight: false },
 ];
-// const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate } = row;
 
 // ----------------------------------------------------------------------
 
@@ -69,7 +67,7 @@ function getComparator(order, orderBy) {
 }
 
 function applySortFilter(array, comparator, query) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
+  const stabilizedThis = array?.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
@@ -81,7 +79,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function User() {
+export default function Exportation() {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
 
@@ -101,7 +99,7 @@ export default function User() {
   const [statusAllChoose, setStatusAllChoose] = useState(0);
   const [Addresses, setAddresses] = useState('');
   const [regions, setRegions] = useState([]);
-  const staffID = localStorage.getItem('staffID');
+  const warehouseStaffID = localStorage.getItem('staffID');
   const [listProduct, setListProduct] = useState([]);
   const [regionsChoose, setRegionsChoose] = useState(0);
   const [open, setOpen] = useState(false);
@@ -132,34 +130,31 @@ export default function User() {
   useEffect(() => {
     getRegionAPI(territoryID);
   }, [territoryID]);
+//   const handleOnConfirm = () => {
+//     // handleClickStatus(inputValue.confirmation, inputValue.shopOrderID);
+//     updateDeliveryResult();
+//   }
 
-  const handleOnConfirm = () => {
-    handleClickStatus(inputValues.confirmation, inputValues.shopOrderID);
-    updateImportation();
-  }
-
-  async function getWorkingTerritoryAPI(id) {
-    const res = await getWorkingTerritory(id);
-    if (res?.status === 200) {
-      getRegionAPI(res?.data);
-      setAddresses(res?.data);
-    }
-  }
   async function getRegionAPI(id) {
     const res = await getRegion(id);
     if (res?.status === 200) {
       setRegions(res?.data);
     }
   }
-  const updateImportation = async () => {
-    const body = listProduct.map((e) => ({
-      shopOrderID: e?.shopOrderID,
-      confirmation: e?.confirmation,
-      warehouseStaffID: e?.warehouseStaffID,
-    }));
+  const updateShopOrders = async () => {
+    // const body = listProduct.map((e) => ({
+    //   shopOrderID: e?.shopOrderID,
+    //   confirmation: e?.confirmation,
+    //   warehouseStaffID: e?.warehouseStaffID,
+    // }));
 
+    const body = {
+        shopOrderID: inputValues.shopOrderID,
+        warehouseStaffID,
+        confirmation: inputValues.confirmation,
+    };
     try {
-      const res = await updateImportationAPI(body);
+      const res = await updateReturnResult(body);
       if (res?.status === 200) {
         setOpenToast(true);
         setSeverity('success');
@@ -173,40 +168,28 @@ export default function User() {
     }
   };
 
-  const getImportation = async (body) => {
+  const getShopOrders = async () => {
+    const body = {
+        warehouseStaffID,
+        territoryID,
+        regionID: regionsChoose,
+        shopName,
+        shopOrderID: orderID,
+      };
+
     try {
-      const res = await getImportationAPI(body);
-      setListProduct(res?.data);
+      const res = await getReturnResults(body);
+      if (res?.status === 200) {
+        setListProduct(res?.data);
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
-  // useEffect(() => {
-  //   getWorkingTerritoryAPI(staffID);
-  // }, []);
   useEffect(() => {
-    const body = {
-      staffID,
-      territoryID,
-      regionID: regionsChoose,
-      shopName,
-      shopOrderID:orderID,
-    };
-    getImportation(body);
-  }, [staffID,territoryID, regionsChoose, shopName,orderID, success]);
-
-  const handleChangeStatus = (event, id) => {
-    const temp = listProduct.filter((e) => e.shopOrderID === id);
-    const tempArr = listProduct.filter((e) => e.shopOrderID !== id);
-    let temp1 = [];
-
-    temp[0].migrationStatus = event;
-    temp1 = temp;
-    const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
-    setListProduct(temp2);
-  };
+    getShopOrders();
+  }, [warehouseStaffID, territoryID, regionsChoose, shopName,orderID, success]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -223,20 +206,6 @@ export default function User() {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
-    }
-    setSelected(newSelected);
-  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -247,13 +216,6 @@ export default function User() {
     setPage(0);
   };
 
-  const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
-  };
-
-  // const handleChangeStatus = (event) => {
-  //   // const temp1 =
-  // }
   const handleClickStatus = (confirmation, id) => {
     const temp = listProduct.filter((e) => e.shopOrderID === id);
     const tempArr = listProduct.filter((e) => e.shopOrderID !== id);
@@ -279,19 +241,15 @@ export default function User() {
   const isUserNotFound = filteredUsers.length === 0;
 
   return (
-    <Page title="Lưu Hàng Vào Kho">
+    <Page title="Xác Nhận Kết Quả Trả Hàng">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Lưu Hàng Vào Kho
+            Xác Nhận Kết Quả Trả Hàng
           </Typography>
-          {/* <Button variant="contained" onClick={updateImportation}>
-            Lưu
-          </Button> */}
         </Stack>
 
-
-        <Box style={{ display: 'flex', alignItems: 'center', marginBottom: '30px' , height: '50px' }}>
+        <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
             <Box style={{ marginTop: '10px' }}>Tên cửa hàng</Box>
             <input
               style={{
@@ -318,7 +276,40 @@ export default function User() {
               onChange={(e) => setOrderID(e.target.value)}
             />
           </Box>
- 
+
+        <Box style={{ display: 'flex', alignItems: 'center', height: '50px', marginBottom:'30px' }}>
+            <Box style={{ marginTop: '10px'}}>Khu vực trả hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '45px' }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                style={{ height: '30px' }}
+                value={territoryID}
+                onChange={(e) => {
+                  console.log(e);
+                  setTerritoryID(e?.target?.value);
+                }}
+              >
+                {deliveryTerritories?.map((e) => (
+                  <MenuItem value={e?.territoryID}>{e?.description}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Box style={{ marginTop: '10px', marginLeft: '113px' }}>Phường/xã trả hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '35px' }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                style={{ height: '30px' }}
+                value={regionsChoose}
+                onChange={(e) => setRegionsChoose(e?.target?.value)}
+              >
+                {regions?.map((e) => (
+                  <MenuItem value={e?.regionID}>{e?.description}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         <Card>
           {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
 
@@ -407,7 +398,6 @@ export default function User() {
                         </TableCell>
                         <TableCell
                           align="left"
-                          style={{ maxWidth: '200px' }}
                           onClick={() => {
                             setItemProp(row);
                             setOpen(true);
@@ -424,16 +414,6 @@ export default function User() {
                         >
                           {shopAddress}
                         </TableCell>
-
-                        <TableCell
-                          align="left"
-                          onClick={() => {
-                            setItemProp(row);
-                            setOpen(true);
-                          }}
-                        >
-                          {deliveryAddress}
-                        </TableCell>
                         <TableCell
                           align="left"
                           onClick={() => {
@@ -443,31 +423,24 @@ export default function User() {
                         >
                           {statusDescription}
                         </TableCell>
-                        {/* <FormControl style={{ marginTop: '10px' }}>
-                          <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            style={{ height: '30px' }}
-                            value={migrationStatus}
-                            onChange={(e) => handleChangeStatus(e?.target?.value, shopOrderID)}
-                          >
-                            <MenuItem value={0}>Chưa nhập</MenuItem>
-                            <MenuItem value={1}>Nhập hàng</MenuItem>
-                          </Select>
-                        </FormControl> */}
+                        <TableCell>
+
                         <Button
                           sx={{ marginTop: '20px' }}
-                          variant={confirmation === '0' ? 'outlined' : 'contained'}
+                          variant={'outlined'}
                           onClick={() => {
-                            // handleClickStatus(confirmation, shopOrderID);
-                            setInputVals({ shopOrderID, confirmation });
+
+                            setInputVals({shopOrderID, confirmation} );
                             setOpenConfirm(true);
                           }
                           }
                         >
-                          {/* {confirmation === '0' ? 'Chưa nhập' : 'Nhập hàng'} */}
-                          Lưu Kho
+                         {confirmation === '0' && 'Chưa Xác Nhận'}
+                         {confirmation === '1' && 'Thành Công'}
+                         {confirmation === '2' && 'Thất Bại'}
                         </Button>
+
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -516,9 +489,9 @@ export default function User() {
         title="Thông Báo"
         open={openConfirm}
         setOpen={setOpenConfirm}
-        onConfirm={handleOnConfirm}
+        onConfirm={updateShopOrders}
       >
-        Bạn có muốn lưu món hàng này vào kho?
+        Bạn có chắc chắn xác nhận kết quả trả hàng này?
       </ConfirmDlg>
     </Page>
   );

@@ -38,9 +38,9 @@ import {
   getRegion,
   getDetailPackage,
   updateDeliveryHistory,
-  getShopOrderAssignmentAPI,
+  getShipBack,
   getShopOrderDismissionAPI,
-  getShopOrderAssignmentCapabilityAPI,
+  getShipBackCapabilityAPI,
   getTerritoryAPI2,
 } from '../services/index';
 import SimpleDialog from './DetailOrderView';
@@ -52,7 +52,7 @@ const TABLE_HEAD = [
   { id: 'shopName', label: 'Tên cửa hàng', alignRight: false },
   { id: 'packageName', label: 'Tên món hàng', alignRight: false },
   { id: 'registerDate', label: 'Ngày gửi đơn', alignRight: false },
-  { id: 'deliveryAddress', label: 'Địa chỉ giao', alignRight: false },
+  { id: 'shopAddress', label: 'Địa chỉ trả', alignRight: false },
   { id: 'statusDescription', label: 'Trạng thái đơn hàng', alignRight: false },
   { id: 'GIAODON', label: 'Giao đơn', alignRight: false },
   // { id: 'HUYDON', label: 'Huỷ giao đơn', alignRight: false },
@@ -105,7 +105,7 @@ export default function User() {
   const [regionsChoose, setRegionsChoose] = useState(0);
   const [statusAllChoose, setStatusAllChoose] = useState(0);
   const [Addresses, setAddresses] = useState('');
-  const staffID1 = localStorage.getItem('staffID');
+  const warehouseStaffID = localStorage.getItem('staffID');
   const [listOrder, setListOrder] = useState([]);
   const [error1, setError1] = useState('');
 
@@ -136,41 +136,24 @@ export default function User() {
     getRegionAPI(territoryID);
   }, [territoryID]);
 
-  async function getWorkingTerritoryAPI(id) {
-    const res = await getWorkingTerritory(id);
-    if (res?.status === 200) {
-      getRegionAPI(res?.data);
-      setAddresses(res?.data);
-    }
-  }
   async function getRegionAPI(id) {
     const res = await getRegion(id);
     if (res?.status === 200) {
       setRegions(res?.data);
     }
   }
-  async function updateDeliveryHistoryAPI() {
-    const body = listUser.map((e) => ({ shopOrderID: e?.shopOrderID, status: e?.status }));
 
-    const res = await updateDeliveryHistory(body);
-    if (res?.status === 200) {
-      console.log(res?.data);
-    }
-  }
 
-  const handleUpdate = () => {
-    updateDeliveryHistoryAPI();
-  };
   async function getShopOrderAssignment() {
     const body = {
-      staffID: staffID1,
+      warehouseStaffID,
       packageName1: packageName,
-      shopName1: shopName,
+      shopName,
       territoryID,
       regionID: regionsChoose,
       shopOrderID: orderID,
     };
-    const res = await getShopOrderAssignmentAPI(body);
+    const res = await getShipBack(body);
     if (res?.status === 200) {
       setListUser(res?.data);
     }
@@ -178,9 +161,6 @@ export default function User() {
   useEffect(() => {
     getShopOrderAssignment();
   }, [shopName, territoryID, regionsChoose, packageName, orderID]);
-  // useEffect(() => {
-  //   getWorkingTerritoryAPI(staffID1);
-  // }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -196,49 +176,18 @@ export default function User() {
     }
     setSelected([]);
   };
-
-  const handleDismiss = async (id) => {
-    const body = {
-      shopOrderID: id,
-    };
-    try {
-      const res = await getShopOrderDismissionAPI(body);
-      console.log(res);
-      if (res.status === 200) {
-        getShopOrderAssignment();
-        setError1(res.data);
-      }
-    } catch (error) {
-      setError1(error?.response.data);
-    }
-  };
   const handleCapability = async (id) => {
     try {
-      const res = await getShopOrderAssignmentCapabilityAPI(id);
+      const res = await getShipBackCapabilityAPI(id);
       console.log(res.data);
       if (res.data === 1) {
-        navigate(`/dashboard/freeDeliveryShippers?id=${id}`);
+        navigate(`/dashboard/freeShipBackShippers?id=${id}`);
       }
     } catch (error) {
       setOpenToast(true);
       setSeverity('error');
       setError1(error?.response?.data?.message);
     }
-  };
-
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
-    }
-    setSelected(newSelected);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -250,25 +199,6 @@ export default function User() {
     setPage(0);
   };
 
-  const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
-  };
-
-  const handleChangeStatus = (event, id) => {
-    const temp = listUser.filter((e) => e.shopOrderID === id);
-    const tempArr = listUser.filter((e) => e.shopOrderID !== id);
-    let temp1 = [];
-
-    temp[0].status = event?.target?.value;
-    temp1 = temp;
-
-    const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.id - b.id);
-    setListUser(temp2);
-  };
-  const handleChangeDeliveryStatus = (e) => {
-    setStatusAllChoose(e.target.value);
-  };
   const handleChangeRegion = (e) => {
     setRegionsChoose(e.target.value);
   };
@@ -280,21 +210,12 @@ export default function User() {
   const isUserNotFound = filteredUsers.length === 0;
 
   return (
-    <Page title="Giao Đơn Giao Hàng">
+    <Page title="Giao Đơn Trả Hàng">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Giao Đơn Giao Hàng Cho Nhân Viên
+            Giao Đơn Trả Hàng
           </Typography>
-          {/* <Button
-            variant="contained"
-            // component={RouterLink}
-            // to="#"
-            onClick={handleUpdate}
-            startIcon={<Iconify icon="eva:plus-fill" />}
-          >
-            Lưu
-          </Button> */}
         </Stack>
 
         <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
@@ -326,7 +247,7 @@ export default function User() {
           </Box>
 
         <Box style={{ display: 'flex', alignItems: 'center', height: '50px', marginBottom:'30px' }}>
-            <Box style={{ marginTop: '10px'}}>Khu vực giao hàng</Box>
+            <Box style={{ marginTop: '10px'}}>Khu vực trả hàng</Box>
             <FormControl style={{ marginTop: '10px', marginLeft: '45px' }}>
               <Select
                 labelId="demo-simple-select-label"
@@ -343,7 +264,7 @@ export default function User() {
                 ))}
               </Select>
             </FormControl>
-            <Box style={{ marginTop: '10px', marginLeft: '113px' }}>Phường/xã giao hàng</Box>
+            <Box style={{ marginTop: '10px', marginLeft: '113px' }}>Phường/xã trả hàng</Box>
             <FormControl style={{ marginTop: '10px', marginLeft: '35px' }}>
               <Select
                 labelId="demo-simple-select-label"
@@ -358,34 +279,12 @@ export default function User() {
               </Select>
             </FormControl>
           </Box>
-
-        
-        {/* <Box style={{ marginBottom: '30px' }}>
-          <Box sx={{ display: 'flex' }}>
-            <Typography>Tên món hàng</Typography>
-            <input
-              style={{
-                width: '120px',
-                height: '25px',
-                marginLeft: '145px',
-                borderRadius: '25px',
-                padding: '5px',
-              }}
-              value={packageName}
-              onChange={(e) => setPackageName(e.target.value)}
-            />
-          </Box>
-        </Box> */}
-        {/* <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography> */}
         <Card>
-          {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
                 <UserListHead
-                  // order={order}
-                  // orderBy={orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={listUser.length}
                   numSelected={selected.length}
@@ -454,7 +353,7 @@ export default function User() {
                         <TableCell align="left" onClick={() => {
                           setItemProp(row);
                           setOpen(true);
-                        }}>{deliveryAddress}</TableCell>
+                        }}>{shopAddress}</TableCell>
                         <TableCell align="left" onClick={() => {
                           setItemProp(row);
                           setOpen(true);
@@ -462,13 +361,6 @@ export default function User() {
                         <TableCell align="left">
                           <Button onClick={() => handleCapability(shopOrderID)}>Giao</Button>
                         </TableCell>
-                        {/* <TableCell align="left">
-                          <Button onClick={() => handleDismiss(shopOrderID)}>Huỷ</Button>
-                        </TableCell> */}
-
-                        {/* <TableCell align="right">
-                          <UserMoreMenu />
-                        </TableCell> */}
                       </TableRow>
                     );
                   })}

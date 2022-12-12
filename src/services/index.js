@@ -27,6 +27,19 @@ import {
   API_GET_SHOP_ORDER_PICKUP,
   API_GET_PICKUP_CAPABLITY,
   API_UPDATE_SHOP_ORDER_PICKUP,
+  API_GET_STAFF_INFO,
+  API_GET_TERRITORY2,
+  API_GET_PICKUP_SHIPPER,
+  API_GET_DETAIL_PACKAGE2,
+  API_GET_RETRIEVE_ORDERS,
+  API_UPDATE_RETRIEVE_ORDER,
+  API_GET_CANCEL_ORDERS,
+  API_UPDATE_CANCEL_ORDER,
+  API_GET_SHIP_BACK,
+  API_UPDATE_SHIP_BACK,
+  API_GET_RETURN_RESULTS,
+  API_UPDATE_RETURN_RESULT,
+  API_GET_SHIP_BACK_CAPABILITY
 } from './config';
 
 export const registerAPI = async (body) => {
@@ -46,7 +59,7 @@ export const getWorkingTerritory = async (id) => {
 export const getDeliveryResultAPI = async (body) => {
   try {
     const response = await axios.get(
-      `${API_GET_DELIVERY_RESULTS}?warehouseStaffID=${body.staffID}&regionID=${body.regionID}&shopName=${body.shopName}`
+      `${API_GET_DELIVERY_RESULTS}?warehouseStaffID=${body.staffID}&territoryID=${body.territoryID}&regionID=${body.regionID}&shopName=${body.shopName}&shopOrderID=${body?.shopOrderID}`
     );
     return response;
   } catch (error) {
@@ -60,7 +73,7 @@ export const updateDeliveryResultAPI = async (body) => {
 export const getImportationAPI = async (body) => {
   try {
     const response = await axios.get(
-      `${API_GET_IMPORTATION}?staffID=${body.staffID}&regionID=${body.regionID}&shopName=${body.shopName}`
+      `${API_GET_IMPORTATION}?staffID=${body.staffID}&territoryID=${body.territoryID}&regionID=${body.regionID}&shopName=${body.shopName}&shopOrderID=${body?.shopOrderID}`
     );
     return response;
   } catch (error) {
@@ -74,7 +87,7 @@ export const updateImportationAPI = async (body) => {
 export const getExportationAPI = async (body) => {
   try {
     const response = await axios.get(
-      `${API_GET_EXPORTATION}?staffID=${body.staffID}&regionID=${body.regionID}&shopName=${body.shopName}`
+      `${API_GET_EXPORTATION}?staffID=${body.staffID}&territoryID=${body.territoryID}&regionID=${body.regionID}&shopName=${body.shopName}&shopOrderID=${body?.shopOrderID}`
     );
     return response;
   } catch (error) {
@@ -98,7 +111,7 @@ export const loginAPI = async (body) => {
 export const getShopOrderAssignmentAPI = async (body) => {
   try {
     const response = await axios.get(
-      `${API_GET_SHOP_ORDER_ASSIGNMENT}?staffID=${body?.staffID}&packageName=${body?.packageName1}&shopName=${body?.shopName1}&regionID=${body?.regionID}`
+      `${API_GET_SHOP_ORDER_ASSIGNMENT}?staffID=${body?.staffID}&packageName=${body?.packageName1}&shopName=${body?.shopName1}&territoryID=${body?.territoryID}&regionID=${body?.regionID}&shopOrderID=${body?.shopOrderID}`
     );
     return response;
   } catch (error) {
@@ -149,6 +162,18 @@ export const getFreeShiperAPI = async (body) => {
   }
 };
 
+export const getFreePickUpShiperAPI = async (body) => {
+  try {
+    const response = await axios.get(
+      `${API_GET_PICKUP_SHIPPER}?shopOrderID=${body?.shopOrderID}&shipperName=${body?.shipperName1}`
+    );
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+
 export const updateDeliveryHistory = async (body) => {
   // const response = await axios.post(API_UPDATE_UN_MANGAGED_WAREHOUSES, body);
   const response = await axios.post(API_UPDATE_DELIVERY_HISTORY, body);
@@ -156,9 +181,11 @@ export const updateDeliveryHistory = async (body) => {
 };
 
 export const getShopOrdersConfirming = async (body) => {
+  
+  // console.log(body);
   try {
     const response = await axios.get(
-      `${API_GET_SHOP_ORDER_CONFIRM}?staffID=${body?.staffID1}&regionID=${body?.regionID}&deliveryStatus=${body?.status}`
+      `${API_GET_SHOP_ORDER_CONFIRM}?staffID=${body?.staffID1}&territoryID=${body?.territoryID}&regionID=${body?.regionID}&deliveryStatus=${body?.status}&shopName=${body?.shopName1}&shopOrderID=${body?.shopOrderID}`
     );
     return response;
   } catch (error) {
@@ -170,6 +197,17 @@ export const getDetailPackageAPI = async (body) => {
   try {
     const response = await axios.get(
       `${API_GET_DETAIL_PACKAGE}?shopOrderID=${body?.shopOrderID}&isDetails=${body?.isDetail}`
+    );
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const getDetailPackageAPI2 = async (body) => {
+  try {
+    const response = await axios.get(
+      `${API_GET_DETAIL_PACKAGE2}?shopOrderID=${body?.shopOrderID}`
     );
     return response;
   } catch (error) {
@@ -224,7 +262,7 @@ export const updateUnMangagedWarehouseAPI = async (body) => {
 export const getShopOrderPickupAPI = async (body) => {
   try {
     const response = await axios.get(
-      `${API_GET_SHOP_ORDER_PICKUP}?staffID=${body?.staffID}&shopName=${body?.shopName1}&regionID=${body?.regionID}`
+      `${API_GET_SHOP_ORDER_PICKUP}?staffID=${body?.staffID}&shopName=${body?.shopName1}&territoryID=${body?.territoryID}&regionID=${body?.regionID}&shopOrderID=${body?.shopOrderID}`
     );
     return response;
   } catch (error) {
@@ -242,8 +280,94 @@ export const getPickupCapabitityAPI = async (shopOrderID) => {
 };
 
 export const updateShopOrderPickup = async (body) => {
-  try {
     const response = await axios.post(API_UPDATE_SHOP_ORDER_PICKUP, body);
+    return response;
+};
+
+
+export const staffInfoAPI = async (body) => {
+  const response = await axios.get(
+    `${API_GET_STAFF_INFO}?staffID=${body?.staffID}`
+  );
+  return response;
+};
+
+export const getTerritoryAPI2 = async () => {
+  try {
+    const response = await axios.get(API_GET_TERRITORY2);
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const getRetrieveOrders = async (body) => {
+  try {
+    const response = await axios.get(
+      `${API_GET_RETRIEVE_ORDERS}?warehouseStaffID=${body?.warehouseStaffID}&retrieveType=${body?.retrieveType}&shopName=${body?.shopName}&shopOrderID=${body?.shopOrderID}`
+    );
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const updateRetrieveOrder = async (body) => {
+  const response = await axios.post(API_UPDATE_RETRIEVE_ORDER, body);
+  return response;
+};
+
+export const getCancelOrders = async (body) => {
+  try {
+    const response = await axios.get(
+      `${API_GET_CANCEL_ORDERS}?warehouseStaffID=${body?.warehouseStaffID}&shopName=${body?.shopName}&shopOrderID=${body?.shopOrderID}`
+    );
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const updateCancelOrder = async (body) => {
+  const response = await axios.post(API_UPDATE_CANCEL_ORDER, body);
+  return response;
+};
+
+export const getShipBack = async (body) => {
+  try {
+    const response = await axios.get(
+      `${API_GET_SHIP_BACK}?warehouseStaffID=${body?.warehouseStaffID}&shopName=${body?.shopName}&shopOrderID=${body?.shopOrderID}&territoryID=${body?.territoryID}&regionID=${body?.regionID}`
+    );
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const updateShipBack = async (body) => {
+  const response = await axios.post(API_UPDATE_SHIP_BACK, body);
+  return response;
+};
+
+export const getReturnResults = async (body) => {
+  try {
+    const response = await axios.get(
+      `${API_GET_RETURN_RESULTS}?warehouseStaffID=${body?.warehouseStaffID}&shopName=${body?.shopName}&shopOrderID=${body?.shopOrderID}&territoryID=${body?.territoryID}&regionID=${body?.regionID}`
+    );
+    return response;
+  } catch (error) {
+    return error?.response?.data || error;
+  }
+};
+
+export const updateReturnResult = async (body) => {
+  const response = await axios.post(API_UPDATE_RETURN_RESULT, body);
+  return response;
+};
+
+export const getShipBackCapabilityAPI = async (id) => {
+  try {
+    const response = await axios.get(`${API_GET_SHIP_BACK_CAPABILITY}?shopOrderID=${id}`);
     return response;
   } catch (error) {
     return error?.response?.data || error;

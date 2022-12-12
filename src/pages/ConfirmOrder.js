@@ -33,19 +33,19 @@ import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 import SimpleDialog from './DetailOrderView';
 import DateRangePicker from './chooseTimeRangePicker';
-import { getWorkingTerritory, getRegion, getDeliveryResultAPI, updateDeliveryResultAPI } from '../services/index';
+import { getWorkingTerritory, getRegion, getDeliveryResultAPI, updateDeliveryResultAPI, getTerritoryAPI2 } from '../services/index';
 import DialogApp from './Dialog';
+import ConfirmDlg from './ConfirmDlg';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'shopOrderID', label: 'Mã đơn hàng', alignRight: false },
   { id: 'shopName', label: 'Tên cửa hàng', alignRight: false },
-  { id: 'shopkeeperName', label: 'Chủ cửa hàng', alignRight: false },
-  { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
-  { id: 'shopPhone', label: 'SĐT cửa hàng', alignRight: false },
+  { id: 'packageName', label: 'Tên món hàng', alignRight: false },
   { id: 'registerDate', label: 'Ngày gửi đơn', alignRight: false },
-  { id: 'deliveryAddress ', label: 'Địa chỉ giao', alignRight: false },
-  { id: 'statusID', label: 'Kết quả', alignRight: false },
+  { id: 'shopAddress', label: 'Địa chỉ cửa hàng', alignRight: false },
+  { id: 'deliveryAddress', label: 'Địa chỉ giao', alignRight: false },
+  { id: 'statusDescription', label: 'Trạng thái đơn hàng', alignRight: false },
   { id: 'confirmation', label: 'Xác nhận', alignRight: false },
 ];
 // const { shopOrderID, shopName, shopkeeperName, shopAddress, shopPhone, registerDate } = row;
@@ -111,6 +111,31 @@ export default function Exportation() {
   const [success, setSuccess] = useState(false);
   const [openToast, setOpenToast] = useState(false);
   const [severity, setSeverity] = useState('');
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [inputValue, setInputVal] = useState('');
+
+  const [deliveryTerritories, setDeliveryTerritories] = useState([]);
+  const [territoryID, setTerritoryID] = useState(0);
+  const [orderID, setOrderID] = useState('');
+
+  async function getTerritoriesAPI() {
+    const res = await getTerritoryAPI2();
+    if (res?.status === 200) {
+      setDeliveryTerritories(res?.data);
+    }
+  }
+
+  useEffect(() => {
+    getTerritoriesAPI();
+  }, []);
+
+  useEffect(() => {
+    getRegionAPI(territoryID);
+  }, [territoryID]);
+  const handleOnConfirm = () => {
+    handleClickStatus(inputValue.confirmation, inputValue.shopOrderID);
+    updateDeliveryResult();
+  }
 
   async function getWorkingTerritoryAPI(id) {
     const res = await getWorkingTerritory(id);
@@ -120,7 +145,7 @@ export default function Exportation() {
     }
   }
   async function getRegionAPI(id) {
-    const res = await getRegion(id?.territoryID);
+    const res = await getRegion(id);
     if (res?.status === 200) {
       setRegions(res?.data);
     }
@@ -143,7 +168,7 @@ export default function Exportation() {
     } catch (error) {
       setOpenToast(true);
       setSeverity('error');
-      setError1(error?.response?.data?.message);
+      setError1(error?.response?.data);
     }
   };
 
@@ -158,17 +183,19 @@ export default function Exportation() {
     }
   };
 
-  useEffect(() => {
-    getWorkingTerritoryAPI(staffID);
-  }, []);
+  // useEffect(() => {
+  //   getWorkingTerritoryAPI(staffID);
+  // }, []);
   useEffect(() => {
     const body = {
       staffID,
+      territoryID,
       regionID: regionsChoose,
       shopName,
+      shopOrderID: orderID,
     };
     getDeliveryResult(body);
-  }, [staffID, regionsChoose, shopName,success]);
+  }, [staffID, territoryID, regionsChoose, shopName,orderID, success]);
 
   const handleChangeStatus = (event, id) => {
     const temp = listProduct.filter((e) => e.shopOrderID === id);
@@ -242,7 +269,7 @@ export default function Exportation() {
     temp1 = temp;
     console.log(temp1[0]?.confirmation);
     const temp2 = [...temp1, ...tempArr];
-    temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
+    // temp2.sort((a, b) => a.shopOrderID - b.shopOrderID);
     setListProduct(temp2);
   };
 
@@ -253,25 +280,65 @@ export default function Exportation() {
   const isUserNotFound = filteredUsers.length === 0;
 
   return (
-    <Page title="Product">
+    <Page title="Xác Nhận Kết Quả Giao Hàng">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
             Xác Nhận Kết Quả Giao Hàng
           </Typography>
-          <Button variant="contained" onClick={updateDeliveryResult}>
+          {/* <Button variant="contained" onClick={updateDeliveryResult}>
             Lưu
-          </Button>
+          </Button> */}
         </Stack>
-      
-        <Box style={{ marginBottom: '30px' }}>
-          <Box style={{ display: 'flex' }}>
-            <Box>Khu vực giao hàng</Box>
-            <Box style={{ marginLeft: '117px' }}>{Addresses?.description}</Box>
+
+        <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
+            <Box style={{ marginTop: '10px' }}>Tên cửa hàng</Box>
+            <input
+              style={{
+                width: '120px',
+                height: '25px',
+                marginLeft: '72px',
+                borderRadius: '25px',
+                padding: '5px',
+              }}
+              value={shopName}
+              onChange={(e) => setShopName(e.target.value)}
+            />
+
+            <Box style={{ marginTop: '10px', marginLeft: '90px' }}>Mã đơn hàng</Box>
+            <input
+              style={{
+                width: '120px',
+                height: '25px',
+                marginLeft: '85px',
+                borderRadius: '25px',
+                padding: '5px',
+              }}
+              value={orderID}
+              onChange={(e) => setOrderID(e.target.value)}
+            />
           </Box>
-          <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Phường/xã giao hàng</Box>
-            <FormControl style={{ marginTop: '10px', marginLeft: '95px' }}>
+
+        <Box style={{ display: 'flex', alignItems: 'center', height: '50px', marginBottom:'30px' }}>
+            <Box style={{ marginTop: '10px'}}>Khu vực giao hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '45px' }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                style={{ height: '30px' }}
+                value={territoryID}
+                onChange={(e) => {
+                  console.log(e);
+                  setTerritoryID(e?.target?.value);
+                }}
+              >
+                {deliveryTerritories?.map((e) => (
+                  <MenuItem value={e?.territoryID}>{e?.description}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Box style={{ marginTop: '10px', marginLeft: '113px' }}>Phường/xã giao hàng</Box>
+            <FormControl style={{ marginTop: '10px', marginLeft: '35px' }}>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -285,22 +352,6 @@ export default function Exportation() {
               </Select>
             </FormControl>
           </Box>
-
-          <Box style={{ display: 'flex', alignItems: 'center', height: '50px' }}>
-            <Box>Tên cửa hàng</Box>
-            <input
-              style={{
-                width: '120px',
-                height: '25px',
-                marginLeft: '150px',
-                borderRadius: '25px',
-                padding: '5px',
-              }}
-              value={shopName}
-              onChange={(e) => setShopName(e.target.value)}
-            />
-          </Box>
-        </Box>
         <Card>
           {/* <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} /> */}
 
@@ -324,11 +375,25 @@ export default function Exportation() {
                       shopName,
                       shopkeeperName,
                       shopAddress,
+                      shopEmail,
                       shopPhone,
                       registerDate,
-                      confirmation,
+                      packageName,
+                      quantity,
+                      mass,
+                      unitPrice,
+                      shippingFee,
+                      totalPrice,
                       deliveryAddress,
-                      statusID,
+                      shippingFeePayment,
+                      fullPayment,
+                      consigneeName,
+                      consigneePhone,
+                      consignneNote,
+                      status,
+                      warehouseStaffID,
+                      statusDescription,
+                      confirmation,
                     } = row;
 
                     const isItemSelected = selected.indexOf(shopName) !== -1;
@@ -371,27 +436,8 @@ export default function Exportation() {
                             setOpen(true);
                           }}
                         >
-                          {shopkeeperName}
+                          {packageName}
                         </TableCell>
-                        <TableCell
-                          align="left"
-                          onClick={() => {
-                            setItemProp(row);
-                            setOpen(true);
-                          }}
-                        >
-                          {shopAddress}
-                        </TableCell>
-                        <TableCell
-                          align="left"
-                          onClick={() => {
-                            setItemProp(row);
-                            setOpen(true);
-                          }}
-                        >
-                          {shopPhone}
-                        </TableCell>
-
                         <TableCell
                           align="left"
                           onClick={() => {
@@ -408,6 +454,16 @@ export default function Exportation() {
                             setOpen(true);
                           }}
                         >
+                          {shopAddress}
+                        </TableCell>
+
+                        <TableCell
+                          align="left"
+                          onClick={() => {
+                            setItemProp(row);
+                            setOpen(true);
+                          }}
+                        >
                           {deliveryAddress}
                         </TableCell>
                         <TableCell
@@ -417,16 +473,54 @@ export default function Exportation() {
                             setOpen(true);
                           }}
                         >
-                          {statusID === '0' ? 'Thành Công' : 'Thất bại'}
+                          {statusDescription}
                         </TableCell>
+                        <TableCell>
+                          {/* <FormControl style={{ marginTop: '10px' }}>
+                            <Select
+                              style={{ height: '30px' }}
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              value={confirmation}
+                              onChange={() => {
+                                setInputVal(shopOrderID );
+                                setOpenConfirm(true);
+                              }}
+                            >
+                              <MenuItem value={0}>Hoàn tất</MenuItem>
+                              <MenuItem value={1}>Lưu kho</MenuItem>
+                              <MenuItem value={2}>Hoàn trả</MenuItem>
+                              <MenuItem value={3}>Hoàn trả</MenuItem>
+                            </Select>
+                          </FormControl> */}
 
                         <Button
                           sx={{ marginTop: '20px' }}
-                          variant={confirmation === '0' ? 'outlined' : 'contained'}
-                          onClick={() => handleClickStatus(confirmation, shopOrderID)}
+                          variant={'outlined'}
+                          onClick={() => {
+                            setInputVal(shopOrderID );
+                            setOpenConfirm(true);
+                          }
+                          }
                         >
-                          {confirmation === '0' ? 'Chưa xác nhận' : 'Xác nhận'}
+                         {confirmation === '0' && 'Hoàn tất'}
+                         {confirmation === '1' && 'Lưu kho'}
+                         {confirmation === '2' && 'Hoàn trả'}
+                         {confirmation === '3' && 'Hoàn trả'}
                         </Button>
+
+                        </TableCell>
+                        {/* <Button
+                          sx={{ marginTop: '20px' }}
+                          variant={confirmation === '0' ? 'outlined' : 'contained'}
+                          onClick={() => {
+                            setInputVals({ shopOrderID, confirmation });
+                            setOpenConfirm(true);
+                          }
+                          }
+                        >
+                          Xác nhận
+                        </Button> */}
                       </TableRow>
                     );
                   })}
@@ -471,6 +565,14 @@ export default function Exportation() {
           setOpenToast(false);
         }}
       />
+      <ConfirmDlg
+        title="Thông Báo"
+        open={openConfirm}
+        setOpen={setOpenConfirm}
+        onConfirm={handleOnConfirm}
+      >
+        Bạn có chắc chắn xác nhận kết quả giao hàng này?
+      </ConfirmDlg>
     </Page>
   );
 }

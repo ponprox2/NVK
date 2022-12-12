@@ -5,7 +5,6 @@ import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { Box, Link, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
 // mock
-import account from '../../_mock/account';
 // hooks
 import useResponsive from '../../hooks/useResponsive';
 // components
@@ -43,7 +42,10 @@ DashboardSidebar.propTypes = {
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const [adminInfo, setAdminInfo] = useState({});
+  const staffId = localStorage.getItem('staffID');
+  const [adminInfo, setAdminInfo] = useState({
+    name: '',
+  });
   const isDesktop = useResponsive('up', 'lg');
   const [iss, setIss] = useState(false);
   useEffect(() => {
@@ -51,6 +53,9 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       onCloseSidebar();
     }
   }, [pathname]);
+
+  const account = JSON.parse(localStorage.getItem("accountData") || "[]");
+
 
   // useEffect(() => {
   //   const temp = JSON.parse(localStorage.getItem('adminInfo'));
@@ -77,8 +82,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
             <Avatar src={account.photoURL} alt="photoURL" />
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {/* {adminInfo.username} */}
-                pham phong pon
+                {account.name}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 Nhân viên kho

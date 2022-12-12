@@ -81,7 +81,7 @@ export default function Register() {
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
               Manage the job more effectively with Transportation
             </Typography>
-            <img alt="register" src="/static/illustrations/illustration_register.png" />
+            <img alt="register" src="/static/illustrations/illustration_register.jpg" />
           </SectionStyle>
         )}
 

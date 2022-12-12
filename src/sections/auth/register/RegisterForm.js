@@ -31,7 +31,7 @@ import { LoadingButton } from '@mui/lab';
 // component
 import Iconify from '../../../components/Iconify';
 import { registerAPI, getTerritoryAPI } from '../../../services/index';
-
+import DialogApp from '../../../pages/Dialog';
 // ----------------------------------------------------------------------
 
 export default function RegisterForm() {
@@ -52,12 +52,15 @@ export default function RegisterForm() {
     dateOfBirth: '',
     phone: '',
     email: '',
-    idRole: '3',
+    idRole: '2',
     address: '',
   });
   const [statusAll, setStatusAll] = useState(0);
   const [statusAll1, setStatusAll1] = useState(0);
   const [error1, setError1] = useState('');
+  const [reCall, setReCall] = useState(false);
+  const [openToast, setOpenToast] = useState(false);
+  const [severity, setSeverity] = useState('');
 
   const handleChangeData = (e) => {
     const { name, value } = e.target;
@@ -109,11 +112,16 @@ export default function RegisterForm() {
     try {
       const res = await registerAPI(body);
       if (res?.status === 200) {
-        setError1(res?.data);
+        setOpenToast(true);
+        setSeverity('success');
+        setError1(res.data);
+        setReCall(!reCall);
         navigate('/login');
       }
     } catch (error) {
-      setError1(error?.response.data);
+      setOpenToast(true);
+      setSeverity('error');
+      setError1(error?.response?.data);
     }
   };
 
@@ -214,7 +222,7 @@ export default function RegisterForm() {
             // error={Boolean(touched.email && errors.email)}
             // helperText={touched.email && errors.email}
           />
-          <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
+          {/* <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
             <Box>Khu vực giao hàng</Box>
             <FormControl style={{ marginTop: '-5px' }}>
               <Select
@@ -229,7 +237,7 @@ export default function RegisterForm() {
                 ))}
               </Select>
             </FormControl>
-          </Box>
+          </Box> */}
           {/* <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TextField
               fullWidth
@@ -273,12 +281,21 @@ export default function RegisterForm() {
               }}
             />
           </Stack> */}
-          <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography>
+          {/* <Typography sx={{ color: 'red', marginBottom: '20px', fontSize: '20px' }}>{error1}</Typography> */}
           <Button fullWidth size="large" variant="contained" onClick={handleClick}>
             Register
           </Button>
         </Stack>
       </Form>
+      <DialogApp
+        content={error1}
+        type={0}
+        isOpen={openToast}
+        severity={severity}
+        callback={() => {
+          setOpenToast(false);
+        }}
+      />
     </FormikProvider>
   );
 }

@@ -1,6 +1,6 @@
-const BASE_URL = 'http://192.168.1.4:8180';
+const BASE_URL = 'http://172.20.10.11:8180';
 
-export const API_GET_FREE_SHIPPER = `${BASE_URL}/api/freeShippers`;
+export const API_GET_FREE_SHIPPER = `${BASE_URL}/api/freeDeliveryShippers`;
 
 export const API_SHIPPER_ASSIGNMENT = `${BASE_URL}/api/shopOrderDelivery`;
 
@@ -51,3 +51,25 @@ export const API_GET_UN_MANGAGED_WAREHOUSES = `${BASE_URL}/api/unmanagedWarehous
 export const API_GET_SHOP_ORDER_PICKUP = `${BASE_URL}/api/shopOrdersPickUp`;
 export const API_GET_PICKUP_CAPABLITY = `${BASE_URL}/api/pickUpCapability`;
 export const API_UPDATE_SHOP_ORDER_PICKUP = `${BASE_URL}/api/shopOrderPickUp`;
+
+export const API_GET_STAFF_INFO = `${BASE_URL}/api/staffInfo`;
+
+export const API_GET_TERRITORY2 = `${BASE_URL}/api/territories2`;
+
+export const API_GET_PICKUP_SHIPPER = `${BASE_URL}/api/freePickUpShippers`;
+
+export const API_GET_DETAIL_PACKAGE2 = `${BASE_URL}/api/detailPackage2`; 
+
+export const API_GET_RETRIEVE_ORDERS = `${BASE_URL}/api/retrieveOrders`;
+export const API_UPDATE_RETRIEVE_ORDER = `${BASE_URL}/api/retrieveOrder`;
+
+export const API_GET_CANCEL_ORDERS = `${BASE_URL}/api/cancelOrders`;
+export const API_UPDATE_CANCEL_ORDER = `${BASE_URL}/api/cancelOrder`;
+
+export const API_GET_SHIP_BACK = `${BASE_URL}/api/shipBack`;
+export const API_UPDATE_SHIP_BACK = `${BASE_URL}/api/shipBack`;
+
+export const API_GET_RETURN_RESULTS = `${BASE_URL}/api/returnResults`;
+export const API_UPDATE_RETURN_RESULT = `${BASE_URL}/api/returnResult`;
+
+export const API_GET_SHIP_BACK_CAPABILITY = `${BASE_URL}/api/shipBackCapability`;

@@ -12,23 +12,23 @@ const navConfig = [
   //   icon: getIcon('eva:pie-chart-2-fill'),
   // },
   {
-    title: 'Xác Nhận Đơn Hàng Từ Cửa Hàng',
-    path: '/dashboard/products',
+    title: 'Xác Nhận Đơn Hàng',
+    path: '/dashboard/shopOrdersConfirming',
     //  icon: getIcon('eva:shopping-bag-fill'),
   },
   {
-    title: 'Nhập Hàng Vào Kho',
-    path: '/dashboard/order',
-    //  icon: getIcon('eva:alert-triangle-fill'),
-  },
-  {
-    title: 'Giao Đơn Hàng ',
-    path: '/dashboard/user',
+    title: 'Giao đơn lấy hàng  ',
+    path: '/dashboard/shopOrdersPickUp',
     //  icon: getIcon('eva:people-fill'),
   },
   {
-    title: 'Giao đơn lấy hàng  ',
-    path: '/dashboard/user1',
+    title: 'Lưu Hàng Vào Kho',
+    path: '/dashboard/importations',
+    //  icon: getIcon('eva:alert-triangle-fill'),
+  },
+  {
+    title: 'Giao Đơn Giao Hàng',
+    path: '/dashboard/shopOrdersDelivery',
     //  icon: getIcon('eva:people-fill'),
   },
   {
@@ -41,12 +41,27 @@ const navConfig = [
     path: '/dashboard/confirmOrder',
     //  icon: getIcon('eva:file-text-fill'),
   },
-
   {
-    title: 'logout',
-    path: '/login',
-    // icon: getIcon('eva:lock-fill'),
+    title: 'Thu Hồi Đơn Hàng',
+    path: '/dashboard/retrieveOrders',
   },
+  {
+    title: 'Hủy Đơn Hàng',
+    path: '/dashboard/cancelOrders',
+  },
+  {
+    title: 'Giao Đơn Trả Hàng',
+    path: '/dashboard/shipBack',
+  },
+  {
+    title: 'Xác Nhận Kết Quả Trả Hàng',
+    path: '/dashboard/returnResults',
+  },
+  // {
+  //   title: 'logout',
+  //   path: '/login',
+  //   // icon: getIcon('eva:lock-fill'),
+  // },
   // {
   //   title: 'register',
   //   path: '/dashboard/register',

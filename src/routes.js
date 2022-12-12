@@ -18,6 +18,12 @@ import UpdProduct from './pages/updateProduct';
 import Exportation from './pages/Exportation';
 import ConfirmOrder from './pages/ConfirmOrder';
 import UpdateWareHose from './pages/UpdateWareHose';
+import StaffInfo from './pages/StaffInfo';
+import RetrieveOrders from './pages/RetrieveOrders';
+import CancelOrders from './pages/CancelOrders';
+import ShipBack from './pages/ShipBack';
+import FreeShipBackShippers from './pages/FreeShipBackShippers';
+import ReturnResults from './pages/ReturnResults';
 
 // ----------------------------------------------------------------------
 
@@ -28,27 +34,34 @@ export default function Router() {
       element: <DashboardLayout />,
       children: [
         { path: 'app', element: <DashboardApp /> },
-        { path: 'user', element: <User /> },
-        { path: 'user1', element: <User1 /> },
-        { path: 'products', element: <Products /> },
-        { path: 'order', element: <Blog /> },
+        { path: 'shopOrdersDelivery', element: <User /> },
+        { path: 'shopOrdersPickUp', element: <User1 /> },
+        { path: 'shopOrdersConfirming', element: <Products /> },
+        { path: 'importations', element: <Blog /> },
         // { path: 'login', element: <Login /> },
         { path: 'addProduct', element: <AddProduct /> },
         { path: 'register', element: <Register /> },
         { path: 'updateProduct/', element: <UpdProduct /> },
         { path: 'orderDetail/', element: <DetailOrder /> },
-        { path: 'DetailOrderView/', element: <DetailOrderView1 /> },
-        { path: 'orderHistory/', element: <DetailOrder /> },
+        { path: 'freePickUpShippers/', element: <DetailOrderView1 /> },
+        { path: 'freeDeliveryShippers/', element: <DetailOrder /> },
         { path: 'Exportation/', element: <Exportation /> },
         { path: 'confirmOrder/', element: <ConfirmOrder /> },
         { path: 'updateWareHose/', element: <UpdateWareHose /> },
+        { path: 'staffInfo/', element: <StaffInfo /> },
+        { path: 'retrieveOrders/', element: <RetrieveOrders /> },
+        { path: 'cancelOrders/', element: <CancelOrders /> },
+        { path: 'shipBack/', element: <ShipBack /> },
+        { path: 'returnResults/', element: <ReturnResults /> },
+        { path: 'freeShipBackShippers/', element: <FreeShipBackShippers /> },
+        { path: 'returnResults/', element: <ReturnResults /> },
       ],
     },
     {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Navigate to="/dashboard/app" /> },
+        { path: '/', element: <Navigate to="/dashboard/shopOrdersConfirming" /> },
         { path: 'login', element: <Login /> },
         { path: 'register', element: <Register /> },
         { path: '404', element: <NotFound /> },

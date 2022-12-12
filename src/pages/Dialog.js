@@ -14,7 +14,7 @@ export default function AppToast({ content, type, isOpen, callback, severity }) 
       sx={{ width: '100%' }}
       spacing={2}
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      autoHideDuration={2000}
+      autoHideDuration={1500}
       onClose={callback}
     >
       <Alert
